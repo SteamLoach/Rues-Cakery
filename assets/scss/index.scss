@@ -1,0 +1,16 @@
+@use '../../../steamloach-scss/steamloach.scss' as * with (
+  $brand-hue: 315,
+  $brand-saturation: 66%,
+  $accent-hue: 340,
+  $accent-saturation: 90%,
+);
+
+$text-font: 'Lora', serif;
+$title-font: 'Raleway', sans-serif;
+$title-color: $shade-darkest;
+$text-color: $shade-darker;
+$link-color: $brand-dark;
+$page-background: $shade-white;
+$border-color: $shade-darkest;
+$modal-shade: rgba($shade-white, 0.9);
+
