@@ -12,7 +12,7 @@
     <ul class="social-links">
       <li 
         v-for="link in socialLinks"
-        :key="`${link.name}-social-link`">
+        :key="`${link.name}-handheld-nav-social-link`">
         <a :href="link.to" :title="link.name">
           <utils-svg-loader :content="{icon_name: link.icon_name}" />
         </a>
@@ -23,9 +23,6 @@
 
 
 <script>
-
-import {mapMutations, mapGetters} from 'vuex'
-import {MutationNames, GetterNames} from '@/store/keys'
 
 export default {
   
@@ -40,18 +37,6 @@ export default {
     }
   },
 
-  computed: {
-    ...mapGetters({
-      isActive: GetterNames.HandheldNavIsActive
-    })
-  },
-
-  methods: {
-    ...mapMutations({
-      toggle: MutationNames.ToggleHandheldNavIsActive
-    })
-  }
-
 }
 
 </script>
@@ -59,10 +44,30 @@ export default {
 <style lang="scss" scoped>
 
 .handheld-nav {
-  @include row(center, center, $direction: column);
+  z-index: 5;
   position: fixed;
+  width: 100%;
   height: 100%;
+  @include y-pad($space-8);
   background: $page-background;
+}
+
+.page-links {
+  @include y-pad($space-6);
+  margin-bottom: $space-4;
+  li {
+    padding: $space-2;
+    margin-bottom: $space-4;
+    font-size: $text-large;
+    text-align: center;
+  }
+}
+
+.social-links {
+  text-align: center;
+  svg {
+    @include size(35px);
+  }
 }
 
 </style>

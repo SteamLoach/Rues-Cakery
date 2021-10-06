@@ -1,23 +1,38 @@
 <template>
-  <div class="site-wrapper">
+
+  <div id="top" class="site-wrapper">
+    
+    <!-- navigations -->
     <slide-y-down-transition>
       <layout-handheld-nav
         v-if="handHeldNavIsActive"
         :page-links="pageLinks" 
-        :social-links="socialLinks"/>
+        :social-links="socialLinks">
+      </layout-handheld-nav>
     </slide-y-down-transition>
     <layout-primary-nav 
       :page-links="pageLinks" 
-      :social-links="socialLinks"/>
+      :social-links="socialLinks">
+    </layout-primary-nav>
+    
+    <!-- body -->
     <Nuxt />
-    <layout-site-footer />
+
+    <!-- footer -->
+    <layout-site-footer 
+      :social-links="socialLinks">
+    </layout-site-footer>
+
   </div>
+  
 </template>
 
 <script>
 
 import {mapGetters} from 'vuex'
 import {GetterNames} from '@/store/keys'
+
+import {ENABLE_LOGGER} from '@/constants/app-variables'
 
 export default {
 
@@ -48,6 +63,9 @@ export default {
   },
 
   computed: {
+    showLogs () {
+      return ENABLE_LOGGER;
+    },
     ...mapGetters({
       handHeldNavIsActive: GetterNames.HandheldNavIsActive
     })
@@ -91,6 +109,10 @@ export default {
   .site-wrapper {
     @include row(between, center, $direction: column);
     min-height: 100vh;
+  }
+
+  .page-wrapper {
+    width: 100%;
   }
 
 </style>

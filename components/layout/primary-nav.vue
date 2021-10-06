@@ -13,7 +13,7 @@
     <ul class="social-links">
       <li 
         v-for="link in socialLinks"
-        :key="`${link.name}-social-link`">
+        :key="`${link.name}-primary-nav-social-link`">
         <a :href="link.to" :title="link.name">
           <utils-svg-loader :content="{icon_name: link.icon_name}" />
         </a>
@@ -43,9 +43,12 @@
 <style lang="scss" scoped>
 
   .primary-nav {
+    z-index: 10;
+    position: sticky;
+    top: 0;
+    left: 0;
     @include row(between, center);
     padding: $space-4 $space-6;
-    font-family: $title-font;
   }
 
   .page-links {
