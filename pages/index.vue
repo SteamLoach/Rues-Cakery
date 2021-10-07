@@ -2,22 +2,7 @@
   <div class="page-wrapper">
     <header>
       <h1>Rue's Cakery</h1>
-      <div class="media-grid">
-        <div class="landscape">
-          <div 
-            v-for="(asset, index) in landscapeAssets"
-            :key="`landscape-${index}`"
-            class="landscape-image"
-            :style="$toolkit.setBackgroundImage(`${asset}`)">
-          </div>  
-        </div>
-        <div class="portrait">
-          <div
-            class="portrait-image" 
-            :style="$toolkit.setBackgroundImage(portraitAssets[0])">
-          </div>
-        </div>
-      </div>
+      <homepage-service-grid :content="service_grid" />
     </header>
     <main>
 
@@ -31,13 +16,29 @@ export default {
 
   data() {
     return {
-      landscapeAssets: [
-        "/placeholder-images/cake-placeholder-landscape.jpg",
-        "/placeholder-images/cupcake-placeholder-landscape.jpg"
-      ],
-      portraitAssets: [
-        "/placeholder-images/cheesecake-placeholder-portrait.jpg"
-      ]
+      service_grid: {
+        landscape_assets: [
+          {
+            src: "/placeholder-images/cake-placeholder-landscape.jpg",
+            link_text: 'Cakes',
+            link_href: '/cakes',
+          },
+          {
+            src: "/placeholder-images/cupcake-placeholder-landscape.jpg",
+            link_text: 'Cupcakes',
+            link_href: '/cupcakes',            
+          }
+          
+          
+        ],
+        portrait_assets: [
+          {
+            src: "/placeholder-images/cheesecake-placeholder-portrait.jpg",
+            link_text: 'Cheesecakes',
+            link_href: '/cheesecakes',            
+          }
+        ]
+      }
     }
   }
 
@@ -47,58 +48,12 @@ export default {
 
 <style lang="scss" scoped>
 
-header {
-  @include row(center, center);
-}
-
-h1 {
-  margin-bottom: $space-6;
-}
-
-.media-grid {
-  @include row(center, center, $space-4);
-  @include height-scale(
-    $default: 650px,
-    $on-tablet: 750px,
-  );
-
-  .landscape {
-    @include container(center, center, $space-4);
-    @include column-scale(
-      $default: 24,
-      $on-tablet: 14,
-    );
-    @include height-scale(
-      $default: calc((100% / 3) * 2),
-      $on-tablet: 100%,
-    );
+  header {
+    @include row(center, center, $direction: column);
   }
 
-  .portrait {
-    @include column-scale(
-      $default: 24,
-      $on-tablet: 9,
-    );
-    @include height-scale(
-      $default: calc(100% / 3),
-      $on-tablet: 100%,
-    );
+  h1 {
+    margin-bottom: $space-6;
   }
-
-  .landscape-image,
-  .portrait-image {
-    @include background-image();
-    width: 100%;
-  }
-
-  .landscape-image {
-    height: calc(50% - $space-2);
-  }
-
-  .portrait-image {
-    height: 100%;
-  }
-
-}
 
 </style>

@@ -2,17 +2,11 @@
 
   <div id="top" class="site-wrapper">
     
-    <!-- navigations -->
-    <slide-y-down-transition>
-      <layout-handheld-nav
-        v-if="handHeldNavIsActive"
-        :page-links="pageLinks" 
-        :social-links="socialLinks">
-      </layout-handheld-nav>
-    </slide-y-down-transition>
+    <!-- navigation -->
     <layout-primary-nav 
       :page-links="pageLinks" 
-      :social-links="socialLinks">
+      :social-links="socialLinks"
+      :handheld-nav-is-active="handHeldNavIsActive">
     </layout-primary-nav>
     
     <!-- body -->
@@ -100,10 +94,6 @@ export default {
       font-weight: 700;
     }
 
-    svg {
-      fill: $title-color;
-    }
-
   }
 
   .site-wrapper {
@@ -112,7 +102,9 @@ export default {
   }
 
   .page-wrapper {
-    width: 100%;
+    @include row(center, center, $direction: column);
+    margin-top: $space-8;
+    margin-bottom: $space-10;
   }
 
 </style>

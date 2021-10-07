@@ -1,0 +1,118 @@
+<template>
+  <div class="service-grid">
+    <div v-for="orientation in assetOrientations"
+         :key="`${orientation}-orientation`"
+         :class="`${orientation}-assets`">
+         <div 
+          v-for="(asset, index) in content[`${orientation}_assets`]"
+          :key="`${orientation}-asset-${index}`"
+          :class="`${orientation}-asset`"
+          :style="$toolkit.setBackgroundImage(asset.src)">
+            <nuxt-link 
+              :to="asset.link_href"
+              class="service-link">
+              <span>{{asset.link_text}}</span>
+              <utils-svg-loader :content="{icon_name: 'RightChevron'}" />
+            </nuxt-link>
+         </div>
+    </div>  
+  </div>  
+</template>
+
+<script>
+export default {
+  props: {
+    content: {
+      type: Object,
+      default: () => {}
+    }
+  },
+  data() {
+    return {
+      assetOrientations: [
+        'landscape',
+        'portrait',
+      ]
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+
+  .service-grid {
+    @include row(center, center, $space-4);
+    @include height-scale(
+      $default: 650px,
+      $on-tablet: 750px,
+    );
+    max-width: $extra-wide-width;
+  }
+
+  .landscape-assets {
+    @include container(center, center, $space-4);
+    @include column-scale(
+      $default: 24,
+      $on-tablet: 14,
+    );
+    @include height-scale(
+      $default: calc((100% / 3) * 2),
+      $on-tablet: 100%,
+    );
+  }
+
+  .portrait-assets {
+    @include column-scale(
+      $default: 24,
+      $on-tablet: 9,
+    );
+    @include height-scale(
+      $default: calc(100% / 3),
+      $on-tablet: 100%,
+    );
+  }
+
+  .landscape-asset,
+  .portrait-asset {
+    width: 100%;
+    @include pad-scale(
+      xy,
+      $default: $space-2,
+    );
+    @include background-image();
+  }
+
+  .landscape-asset {
+    @include container(start, end);
+    height: calc(50% - $space-2);
+  }
+
+  .portrait-asset {
+    @include container(start, end);
+    @include container-from($tablet, center, end);
+    height: 100%;
+  }
+
+  .service-link {
+    @include wrapper(start, center, $space-1);
+    padding: $space-2 $space-3;
+    color: $title-color;
+    font-weight: 600;
+    background: $page-background;
+    border: 1px solid $title-color;
+    @include shadow($elevation-light);
+    svg {
+      position: relative;
+      left: 0;
+      @include size($text-medium);
+      fill: $text-color;
+      @include transition(left, .1s);
+    }
+    &:hover {
+      svg {
+        left: $space-1;
+      }
+    }
+  }
+
+</style>

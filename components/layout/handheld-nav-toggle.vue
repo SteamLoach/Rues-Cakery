@@ -37,7 +37,7 @@ export default {
 %burger-bar {
   height: 4px;
   width: 45px;
-  background-color: $title-color;
+  background-color: $text-color;
   border-radius: 20px;
   transition-property: background-color, transform;
   transition-duration: $transition-duration;
