@@ -1,5 +1,5 @@
 <template>
-  <div class="service-grid">
+  <section class="service-grid content-panel">
     <div v-for="orientation in assetOrientations"
          :key="`${orientation}-orientation`"
          :class="`${orientation}-assets`">
@@ -16,7 +16,7 @@
             </nuxt-link>
          </div>
     </div>  
-  </div>  
+  </section>  
 </template>
 
 <script>
@@ -51,25 +51,24 @@ export default {
 
   .landscape-assets {
     @include container(center, center, $space-4);
-    @include column-scale(
-      $default: 24,
-      $on-tablet: 14,
-    );
     @include height-scale(
       $default: calc((100% / 3) * 2),
       $on-tablet: 100%,
     );
+    @include media-from($tablet, flex, 2);
   }
 
   .portrait-assets {
-    @include column-scale(
-      $default: 24,
-      $on-tablet: 9,
-    );
+    @include media-from($tablet, flex, 1);
     @include height-scale(
       $default: calc(100% / 3),
       $on-tablet: 100%,
     );
+  }
+
+  .landscape-assets,
+  .portrait-assets {
+    @include media-until($tablet, width, 100%);
   }
 
   .landscape-asset,
@@ -94,24 +93,21 @@ export default {
   }
 
   .service-link {
-    @include wrapper(start, center, $space-1);
+    @include container(start, center, $space-1);
     padding: $space-2 $space-3;
     color: $title-color;
     font-weight: 600;
-    background: $page-background;
+    background: rgba($page-background, 0.8);
     border: 1px solid $title-color;
-    @include shadow($elevation-light);
+    @include shadow($elevation-lightest);
+    @include transition(background, .2s);
     svg {
-      position: relative;
-      left: 0;
       @include size($text-medium);
       fill: $text-color;
       @include transition(left, .1s);
     }
     &:hover {
-      svg {
-        left: $space-1;
-      }
+      background: rgba($page-background, 1);
     }
   }
 

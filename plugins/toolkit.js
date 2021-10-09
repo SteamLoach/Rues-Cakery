@@ -58,6 +58,10 @@ const toolkit = {
     return typeof val === 'string';
   },
 
+  isNum: (val) => {
+    return !isNaN(val);
+  },
+
   // Case Converters
   camelCase: (str) => {
     return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
@@ -91,11 +95,13 @@ const toolkit = {
   scrollPage: ({
     target,
     axis = 'top',
-    offset = false,
+    offset = 0,
     smooth = false,
   } = {}) => {
 
-    log.group(`scrollPage to '${target}'`);
+    log.group('scrollPage');
+
+    log.line(`target: "${target}" | offset: "${offset}"`)
 
     const targetElement = document.querySelector(target);
 
@@ -103,23 +109,17 @@ const toolkit = {
       return log.warn(`scrollPage(${target}) failed because the [target] element does not exist`)
     }
 
-    let targetOffset = 0
-    if (offset) {
-      if(offset.element) {
-        const offsetElement = document.querySelector(offset.element)
-        if(!offsetElement) {
-          return log.warn(`scrollPage(${target}) failed because the specified [offset] element does not exist`)
-        }
-        targetOffset = document.querySelector(offset).clientHeight;
-      } else if(offset.value) {
-        targetOffset = offset.value
+    if(typeof offset === 'string') {
+      const offsetElement = document.querySelector(offset)
+      if(!offsetElement) {
+        return log.error(`offset element "${offset}" does not exist`)
       }
+      offset = offsetElement.clientHeight;
     }
 
     const scrollOptions = {
       left: 0,
-      top: (targetElement.getBoundingClientRect()
-      [axis] + window.pageYOffset) - targetOffset,
+      top: (targetElement.getBoundingClientRect()[axis] + window.pageYOffset) - offset,
     }
 
     if(smooth) {scrollOptions.behavior = 'smooth'}
@@ -130,6 +130,33 @@ const toolkit = {
 
   },
 
+  // Throttle
+  throttle: (func, limit) => {
+    let inThrottle;
+    return function() {
+      const args = arguments;
+      const context = this;
+      if (!inThrottle) {
+        func.apply(context, args);
+        inThrottle = true;
+        setTimeout(() => {inThrottle = false}, limit);
+      }
+    }
+  },
+
+  // Debounce
+  debounce: (func, delay) => {
+    let timer;
+    return function () {
+      const context = this; 
+      const args = arguments;
+      clearTimeout(timer); 
+        timer = setTimeout(()=> {
+          func.apply(context, args)
+        }, delay);
+    }
+  },  
+
   // Set background image (Vue only)
   setBackgroundImage: (url) => {
     return {backgroundImage: `url('${url}')`}
@@ -138,6 +165,7 @@ const toolkit = {
 
 }
 
+// Export for Nuxt plugin injection
 export default ({app}, inject) => {
   inject('toolkit', toolkit);
 }

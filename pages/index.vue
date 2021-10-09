@@ -3,6 +3,7 @@
     <header>
       <h1>Rue's Cakery</h1>
       <homepage-service-grid :content="service_grid" />
+      <homepage-order-process :content="order_process" />
     </header>
     <main>
 
@@ -36,6 +37,27 @@ export default {
             src: "/placeholder-images/cheesecake-placeholder-portrait.jpg",
             link_text: 'Cheesecakes',
             link_href: '/cheesecakes',            
+          }
+        ]
+      },
+      order_process: {
+        title: 'How It Works',
+        steps: [
+          {
+            title: 'Send your enquiry',
+            body: 'Customise your Cake, Cheesecake, or Cupcakes and send in your enquiry. The more information you can provide, the better. Please note that all prices at this stage are estimates and are likely to change.'
+          },
+          {
+            title: 'Confirm your order',
+            body: "We'll be in touch to discuss the specifics of your order and confirm a final price."
+          },
+          {
+            title: 'Put down a deposit',
+            body: "All orders require a 50% deposit before we can start baking"
+          },
+          {
+            title: 'Pickup or Delivery',
+            body: "Once your order is ready you can come and collect it, or it'll be delivered depending on what was agreed in step two."
           }
         ]
       }

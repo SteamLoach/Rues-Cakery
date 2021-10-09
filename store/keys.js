@@ -1,12 +1,25 @@
 
 export const StoreKeys = {
-  HandheldNavIsActive: "HANDHELD_NAV_IS_ACTIVE"
+  
+  WindowWidth: "WINDOW_WIDTH",
+  WindowHeight: "WINDOW_HEIGHT",
+
+  HandheldNavIsActive: "HANDHELD_NAV_IS_ACTIVE",
+  
 }
 
 export const MutationNames = {
-  ToggleHandheldNavIsActive: "HANDHELD_NAV_TOGGLE_HANDHELD_NAV_IS_ACTIVE"
+  
+  UpdateWindowWidth: "UPDATE_WINDOW_WIDTH",
+  UpdateWindowHeight: "UPDATE_WINDOW_HEIGHT",
+
+  ToggleHandheldNavIsActive: "TOGGLE_HANDHELD_NAV_IS_ACTIVE"
+
 }
 
 export const GetterNames = {
+
+  IsHandheldWindowWidth: "IS_HANDHELD_WINDOW_WIDTH",
+
   HandheldNavIsActive: "HANDHELD_NAV_IS_ACTIVE"
 }

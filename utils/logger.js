@@ -5,6 +5,13 @@ const getGroupTitleStyle =(backgroundColor, color) => {
   return `background-color: ${backgroundColor}; color: ${color}`
 }
 
+const colorMap = [
+  {
+    match: 'MIXIN',
+    backgroundColor: '#ff96f8',
+  }
+]
+
 export const logger = ({
   title = 'GENERIC',
   time = true,
@@ -17,13 +24,26 @@ export const logger = ({
 
   const logger = {
 
+    logTitle: title.toUpperCase(),
     groupTitle: null,
+    groupBackgroundColor: backgroundColor,
+    groupColor: color,
     groupTimestamp: null,
 
     group: function(groupTitle) {
       if(showLogs) {
+        const mappedColor = colorMap.find(
+          map => map.match === this.logTitle
+        );
+        if(mappedColor) {
+          this.groupBackgroundColor = mappedColor.backgroundColor;
+          this.groupColor = color || mappedColor.color
+        }
         this.groupTitle = groupTitle;
-        console.group('%c %s', getGroupTitleStyle(backgroundColor, color), ` ${title.toUpperCase()} | ${groupTitle} `);
+        console.group(
+          '%c %s',
+          getGroupTitleStyle(this.groupBackgroundColor, this.groupColor), `${this.groupTitle}`
+        );
         if(time) {
           this.groupTimestamp = new Date().getTime();
           console.time(`[${this.groupTimestamp}] ${this.groupTitle} completed in`)
@@ -43,6 +63,12 @@ export const logger = ({
     break: function() {
       if(showLogs) {
         console.log('----------')
+      }
+    },
+
+    spacer: function() {
+      if(showLogs) {
+        console.log('          ')
       }
     },
 
@@ -79,6 +105,13 @@ export const logger = ({
     info: function(val) {
       if(showLogs) {
         console.info(val);
+      }
+    },
+
+    table: function(val) {
+      if(showLogs) {
+        console.table(val)
+        console.log('          ')
       }
     },
 

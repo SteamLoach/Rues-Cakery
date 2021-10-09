@@ -49,7 +49,7 @@ export default {
   text-align: left;
   z-index: 1;
   overflow: visible;
-  padding: 4px 4px 20px 4px;
+  padding: 0px 4px 20px 4px;
   &:hover {
     cursor: pointer;
   }

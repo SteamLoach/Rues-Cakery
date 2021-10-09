@@ -6,7 +6,8 @@
     <layout-primary-nav 
       :page-links="pageLinks" 
       :social-links="socialLinks"
-      :handheld-nav-is-active="handHeldNavIsActive">
+      :handheld-nav-is-active="handHeldNavIsActive"
+      :is-handheld-window-width="isHandheldWindowWidth">
     </layout-primary-nav>
     
     <!-- body -->
@@ -23,15 +24,18 @@
 
 <script>
 
-import {mapGetters} from 'vuex'
-import {GetterNames} from '@/store/keys'
+import {mapMutations, mapGetters} from 'vuex'
+import {GetterNames, MutationNames} from '@/store/keys'
 
-import {ENABLE_LOGGER} from '@/constants/app-variables'
+import {mixinWindowResizeListener} from '@/mixins/mixinWindowResizeListener'
 
 export default {
 
+  mixins: [mixinWindowResizeListener],
+
   data() {
     return {
+      logRef: '<layout-default>',
       pageLinks: [
         {
           name: 'Cakes',
@@ -52,18 +56,30 @@ export default {
           icon_name: 'InstagramIcon',
           to: 'https://www.instagram.com/ruescakery/'
         }
-      ]
+      ],
+      mixinWindowResizeListener: {
+        onResize: this.handleWindowResize,
+      }
     }
   },
 
   computed: {
-    showLogs () {
-      return ENABLE_LOGGER;
-    },
     ...mapGetters({
+      isHandheldWindowWidth: GetterNames.IsHandheldWindowWidth,
       handHeldNavIsActive: GetterNames.HandheldNavIsActive
     })
   },
+
+  methods: {
+    handleWindowResize(width, height) {
+      this[MutationNames.UpdateWindowWidth](width);
+      this[MutationNames.UpdateWindowHeight](height);
+    },
+    ...mapMutations([
+      MutationNames.UpdateWindowWidth,
+      MutationNames.UpdateWindowHeight,
+    ])
+  }
 
 }
 
@@ -94,6 +110,10 @@ export default {
       font-weight: 700;
     }
 
+    svg {
+      fill: $text-color;
+    }
+
   }
 
   .site-wrapper {
@@ -105,6 +125,21 @@ export default {
     @include row(center, center, $direction: column);
     margin-top: $space-8;
     margin-bottom: $space-10;
+  }
+
+  .content-panel {
+    @include row(center, center);
+    @include pad-scale(
+      x,
+      $default: $space-2,
+      $on-tablet: $space-4,
+      $on-laptop: $space-6, 
+    );
+    @include margin-scale(
+      bottom,
+      $default: $space-8,
+      $on-laptop: $space-10,
+    );
   }
 
 </style>
