@@ -57,7 +57,7 @@ export default {
 
 .site-footer {
   @include row(between, center);
-  padding: $space-6 $space-4;
+  padding: $space-4;
   @include font-size-scale(
     $default: $text-small,
     $on-laptop: $text-root,

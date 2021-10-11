@@ -13,28 +13,32 @@ Mixin requires a mixinWindowResizeListener data object
 
 
 import {logger} from '@/utils/logger'
+import {debounce} from '@/utils/debounce'
 
 const log = logger({
   title: "MIXIN",
   time: false,
 })
 
+const mixinName = 'mixinWindowResizeListener'
+
 export const mixinWindowResizeListener = {
 
   data() {
     return {
-      mixinWindowResizeListener_windowWidth: null,
-      mixinWindowResizeListener_windowHeight: null,
+      mixinWindowResizeListener_groupTitle: null,
     }
   },
 
   mounted() {
 
-    log.group(`windowResizeListener called from ${this.logRef}`);
+    this.mixinWindowResizeListener_groupTitle = `${mixinName} called from ${this.logRef}`
+
+    log.group(this.mixinWindowResizeListener_groupTitle);
     
     // check for config object
     if(!this.mixinWindowResizeListener) {
-      return log.warn('make sure to set a mixinWindowResizeListener data object');
+      return log.warn(`make sure to set a ${mixinName} data object`);
     }
 
     // set event listener
@@ -43,42 +47,27 @@ export const mixinWindowResizeListener = {
       'resize',
       this.mixinWindowResizeListener_setDimensions,
     );
-
-    // set initial dimensions
-    this.mixinWindowResizeListener_setDimensions()
-    log.info(`initial width: ${this.mixinWindowResizeListener_windowWidth} | initial height: ${this.mixinWindowResizeListener_windowHeight}`)
+    this.mixinWindowResizeListener_setDimensions();
     log.groupEnd();
   },
 
-  watch: {
-    mixinWindowResizeListener_dimensions: {
-      deep: true,
-      handler() {
-        this.mixinWindowResizeListener_emitResize();
-      }
-    }
-  },
-
-  computed: {
-    mixinWindowResizeListener_dimensions() {
-      return {
-        width: this.mixinWindowResizeListener_windowWidth,
-        height: this.mixinWindowResizeListener_windowHeight
-      }
-    }
+  beforeDestroy() {
+    log.group(this.mixinWindowResizeListener_groupTitle)
+    log.task('remove event listener')
+    window.removeEventListener(
+      'resize',
+      this.mixinWindowResizeListener_setDimensions
+    )
+    log.groupEnd();
   },
 
   methods: {
-    mixinWindowResizeListener_emitResize() {
-      return this.mixinWindowResizeListener.onResize(
-        this.mixinWindowResizeListener_windowWidth,
-        this.mixinWindowResizeListener_windowHeight,
-      )
-    },
-    mixinWindowResizeListener_setDimensions() {
-      this.mixinWindowResizeListener_windowWidth = window.innerWidth;
-      this.mixinWindowResizeListener_windowHeight = window.innerHeight;
-    },
+    mixinWindowResizeListener_setDimensions: debounce(function() {
+      this.mixinWindowResizeListener.onResize(
+        window.innerWidth,
+        window.innerHeight
+      );
+    }, 500) 
   }
 
 }

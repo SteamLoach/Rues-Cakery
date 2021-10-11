@@ -40,9 +40,7 @@ export const logger = ({
           this.groupColor = color || mappedColor.color
         }
         this.groupTitle = groupTitle;
-        console.group(
-          '%c %s',
-          getGroupTitleStyle(this.groupBackgroundColor, this.groupColor), `${this.groupTitle}`
+        console.group('%c %s', getGroupTitleStyle(this.groupBackgroundColor, this.groupColor), ` ${this.logTitle} | ${this.groupTitle} `
         );
         if(time) {
           this.groupTimestamp = new Date().getTime();
