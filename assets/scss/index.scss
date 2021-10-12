@@ -1,5 +1,5 @@
 @use '../../../steamloach-scss/steamloach.scss' as * with (
-  $brand-hue: 315,
+  $brand-hue: 172,
   $brand-saturation: 66%,
   $accent-hue: 340,
   $accent-saturation: 90%,
@@ -10,6 +10,9 @@ $title-font: 'Lora', sans-serif;
 $title-color: $shade-darkest;
 $text-color: $shade-darker;
 $link-color: $brand-dark;
+$input-label-weight: 600;
+$input-label-color: $title-color;
+$input-border: 1px solid $title-color;
 $page-background: $shade-white;
 $border-color: $shade-darkest;
 $modal-shade: rgba($shade-white, 0.9);

@@ -124,8 +124,10 @@ export default {
   .page-wrapper {
     @include row(center, center, $direction: column);
     flex: 1;
-    margin-top: $space-8;
-    margin-bottom: $space-10;
+  }
+
+  main {
+    @include row(center, center);
   }
 
   .content-panel {

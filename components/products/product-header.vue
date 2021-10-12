@@ -1,11 +1,27 @@
 <template>
   <header class="product-header">
-    <div class="images">
-      <img :src="content.product_images[0].src">
-    </div>
+    <img 
+      :src="content.product_images[0].src"
+      class="feature-image">
     <div class="description">
       <h1>{{content.product_title}}</h1>
       <p>{{content.product_description}}</p>
+      <p>Not nut, gluten, or dairy free unless explicitly stated. Please contact for any special requests.</p>
+      <p>Please note that a minimum of 7 days notice is required. Availability is not gauranteed.</p>
+      <div class="base-price">
+        <sup class="from">from</sup>
+        <sup class="currency">$</sup>
+        <span class="price">{{content.product_details.base_price}}</span>
+      </div>
+      <div class="customise-link">
+        <storyblok-utils-ui-button
+          class="is-full-width has-hover-state"
+          tag="a"
+          href="#price-calculator"
+          @onClick="scrollToOptions">
+          <span>Customise</span>
+        </storyblok-utils-ui-button>
+      </div>
     </div>
   </header>
 </template>
@@ -59,6 +75,15 @@ export default {
         }
       }
     }
+  },
+  methods: {
+    scrollToOptions() {
+      this.$toolkit.scrollPage({
+        target: '#price-calculator',
+        offset: '#primary-nav',
+        smooth: true,
+      })
+    }
   }
 }
 </script>
@@ -66,20 +91,70 @@ export default {
 <style lang="scss" scoped>
 
   .product-header {
-    @include row(center, center);
+    @include row(center, stretch);
     max-width: $extra-wide-width;
-    @include height-scale(
-      $on-tablet: 650px,
-      $on-laptop: 850px,
-    );
+    margin-bottom: $space-8;
 
-  .images,
+  .feature-image {
+    object-fit: cover;
+    @include media-until($tablet, margin-bottom, $space-6);
+  }
+
+  .feature-image,
   .description {
     height: 100%;
     @include column-scale(
       $default: 24,
       $on-tablet: 12, 
     );
+  }
+
+  .description {
+    @include pad-scale(
+      top,
+      $on-tablet: $space-6,
+      $on-laptop: $space-8
+    );
+    @include pad-scale(
+      x,
+      $default: $space-4,
+      $on-tablet: $space-6,
+      $on-laptop: $space-8, 
+    );
+  }
+
+  h1 {
+    margin-bottom: $space-4;
+    @include font-size-scale(
+      $default: $title-large,
+      $on-tablet: 3.5rem,
+    );
+  }
+
+  p {
+    margin-bottom: $space-2;
+    &:last-of-type {
+      margin-bottom: $space-8;
+    }
+  }
+
+  .base-price {
+    @include container(end, start);
+    margin-bottom: $space-6;
+    font-family: $title-font;
+    color: $title-color;
+    font-weight: 700;
+    .from {
+      margin-top: $space-1;
+      margin-right: $space-2;
+      font-weight: 600;
+    }
+    .currency {
+      font-size: $title-larger;
+    }
+    .price {
+      font-size: 5rem;
+    }
   }
 
   }

@@ -1,19 +1,14 @@
 <template>
   <utils-form-field>
-    <label :for="fieldId">
-      {{content.label}}
-    </label>
-    <select 
+    <label :for="fieldId">{{label}}</label>
+    <textarea
       :id="fieldId"
       :value="value"
+      :rows="rows"
+      :placeholder="placeholder"
+      :disabled="disabled"
       @input="onInput">
-      <option 
-        v-for="option in content.options"
-        :key="option.label"
-        :value="option.price_modifier">
-        {{option.label}}
-      </option>
-    </select>
+    </textarea>
   </utils-form-field>
 </template>
 
@@ -21,20 +16,32 @@
 export default {
   props: {
     value: {
-      type: [String, Number],
-      required: true,
+      type: String,
+      default: '',
     },
-    content: {
-      type: Object,
-      default: () => {}
+    label: {
+      type: String,
+      required: true
+    },
+    rows: {
+      type: [String, Number],
+      default: 5,
+    },
+    placeholder: {
+      type: String,
+      default: '',
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     }
   },
   computed: {
     fieldId() {
-      return `${this.$toolkit.kebabCase(this.content.label)}-select-field`;
+      return this.$toolkit.kebabCase(`${this.label}-textarea`)
     },
     fieldRef() {
-      return this.$toolkit.camelCase(this.content.label)
+      return this.$toolkit.camelCase(this.label)
     }
   },
   methods: {
@@ -42,7 +49,6 @@ export default {
       this.$emit('updateValue', {
         prop: this.fieldRef,
         value: e.target.value,
-        label: e.target.options[e.target.selectedIndex].text
       })
     }
   }
@@ -51,7 +57,7 @@ export default {
 
 <style lang="scss" scoped>
 
-  label, select {
+  label, textarea {
     display: block;
     width: 100%;
   }
@@ -61,9 +67,11 @@ export default {
     color: $input-label-color;
   }
 
-  select {
+  textarea {
+    max-width: 100%;
     padding: $space-1 $space-2;
     border: $input-border;
   }
 
 </style>
+

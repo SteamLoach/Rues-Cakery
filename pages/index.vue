@@ -72,6 +72,7 @@ export default {
 
   header {
     @include row(center, center, $direction: column);
+    padding-top: $space-8;
   }
 
   h1 {

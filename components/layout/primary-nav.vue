@@ -1,5 +1,5 @@
 <template>
-  <nav class="primary-nav">
+  <nav id="primary-nav" class="primary-nav">
     
     <div class="column">
       <nuxt-link
