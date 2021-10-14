@@ -9,8 +9,7 @@
       @input="onInput">
       <option 
         v-for="option in content.options"
-        :key="option.label"
-        :value="option.price_modifier">
+        :key="option.label">
         {{option.label}}
       </option>
     </select>
@@ -22,7 +21,7 @@ export default {
   props: {
     value: {
       type: [String, Number],
-      required: true,
+      default: '',
     },
     content: {
       type: Object,
@@ -39,11 +38,7 @@ export default {
   },
   methods: {
     onInput(e) {
-      this.$emit('updateValue', {
-        prop: this.fieldRef,
-        value: e.target.value,
-        label: e.target.options[e.target.selectedIndex].text
-      })
+      this.$emit('input', e.target.value);
     }
   }
 }

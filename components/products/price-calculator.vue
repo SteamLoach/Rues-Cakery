@@ -7,52 +7,55 @@
           :is="'form-field-select'"
           v-for="field in product_details.customization_options"
           :key="`${field.label}-field`"
-          :content="field"
-          :value="getFieldValue(field)"
-          @updateValue="updatePriceMatrix">
+          v-model="$v.form[$toolkit.camelCase(field.label)].$model"
+          :content="field">
         </component>
         <storyblok-forms-form-field-textarea 
           v-if="product_details.text_option"
-          label="Add A Message"
-          @updateValue="updateTextOption">
+          v-model="$v.form[$toolkit.camelCase(product_details.text_option.label)].$model"
+          :label="product_details.text_option.label"
+          :placeholder="product_details.text_option.placeholder">
         </storyblok-forms-form-field-textarea>
       </div>
       <div class="pricing">
-        <div>
+        <div class="modifiers">
           <h2>Pricing</h2>
           <ul>
             <li>
               <b>Base Price:</b>
-              <span>${{priceMatrix.basePrice}}</span>
+              <span>${{basePrice}}</span>
             </li>
-            <li 
-              v-for="modifier in priceMatrix.modifierKeys"
-              :key="modifier.key">
-              <span>
-                <b>{{modifier.label}}: </b>
-                <i>{{getModifierOptionLabel(modifier.key)}}</i>
-              </span>
-              <span>{{getModifierOptionValue(modifier.key)}}</span>
-            </li>
-            <li 
-              v-if="priceMatrix.textOption"
-              :key="textOptionPrice">
-              <b>{{priceMatrix.textOption.label}}:</b>
-              <span>{{textOptionPrice}}</span>              
-            </li>
+            <template v-for="item in priceMap">
+              <slide-x-right-transition 
+                :key="item.label"
+                mode="out-in">
+                <li :key="item.value">
+                  <div>
+                    <b>{{item.label}}: </b><i>{{item.value}}</i>
+                  </div>
+                  <div>
+                    {{item.priceModifierText}}
+                  </div>
+                </li>
+              </slide-x-right-transition>
+            </template>
           </ul>
-          <p>{{product_details.price_disclaimer}}</p>
         </div>
-        <div class="total-price">
-          <b>Estimate:</b>
-          <slide-y-down-transition mode="out-in">
-            <span :key="totalPrice"><sup>$</sup>{{totalPrice}}</span>
-          </slide-y-down-transition>
+        <div class="estimate">
+          <p class="disclaimer">
+            {{product_details.price_disclaimer}}
+          </p>
+          <p class="total">
+            <b>Estimate:</b>
+            <slide-y-down-transition mode="out-in">
+              <span :key="totalPrice"><sup>$</sup>{{totalPrice}}</span>
+            </slide-y-down-transition>
+          </p>
         </div>
       </div>
       <div class="send">
         <storyblok-utils-ui-button
-          class="primary is-wide has-hover-state">
+          class="is-wide has-hover-state">
           <span>Send Enquiry</span>
         </storyblok-utils-ui-button>
       </div>
@@ -62,9 +65,13 @@
 
 <script>
 
+import {mixinFormHandler} from '@/mixins/mixinFormHandler'
+
 import {CAKE_OPTIONS} from '@/placeholder-data/cake-options'
 
 export default {
+  
+  mixins: [mixinFormHandler],
   /*
   props: {
     content: {
@@ -75,82 +82,90 @@ export default {
   */
   data() {
     return {
-      priceMatrix: {},
+      logRef: '<price-calculator>',
+      mixinFormHandler: {
+        formFields: []
+      },
+      basePrice: null,
+      form: {},
       product_details: {
-        base_price: 40,
+        base_price: 50,
         price_disclaimer: "All prices are estimates only and are subject to change depending on exact requirements.",
         customization_options: CAKE_OPTIONS,
         text_option: {
           label: 'Add a message',
           price_modifier: 3,
-          placeholder: "Enter your message"
+          placeholder: "Enter your message (optional)",
+          validations: [
+            {
+              validation: 'maxLength',
+              params: 150,
+              message: 'Max 150 characters'
+            }
+          ]
         }
       }      
     }
  },
  computed: {
-   totalPrice() {
-     let addons = 0;
-     const textOption = this.priceMatrix.textOption
-     if(textOption && textOption.value) {
-       addons += textOption.price_modifier
-     }
-     Object.keys(this.priceMatrix.modifiers).forEach(key => {
-       addons += parseFloat(this.priceMatrix.modifiers[key].value);
-     })
-     return (this.priceMatrix.basePrice + addons).toFixed(2);
+   priceMap() {
+    const priceMap = [];
+    const customizationOptions = this.product_details.customization_options;
+    customizationOptions.forEach(field => {
+      const formValue = this.form[this.$toolkit.camelCase(field.label)]
+      const priceModifier = field.options.find(option => option.label === formValue).price_modifier; 
+      priceMap.push({
+        label: field.label,
+        value: formValue,
+        priceModifierText: priceModifier ? `+ $${priceModifier}` : '-',
+        priceModifier,
+      })
+    })
+    if(this.product_details.text_option) {
+      const textOption = this.product_details.text_option;
+      const formValue = this.form[this.$toolkit.camelCase(textOption.label)]
+      const priceModifier = textOption.price_modifier
+      priceMap.push({
+        label: textOption.label,
+        value: formValue ? 'Yes' : '',
+        priceModifierText: formValue ? `+ $${priceModifier}` : '-', 
+        priceModifier: formValue ? priceModifier : 0,
+      })
+    }
+    return priceMap;
    },
-   textOptionPrice() {
-     return this.priceMatrix.textOption.value ? `+ $${this.priceMatrix.textOption.price_modifier}` : '-'
+   totalPrice() {
+     let modifiers = 0;
+     this.priceMap.forEach(item => {modifiers += item.priceModifier});
+     return (this.basePrice + modifiers).toFixed(2);
    },
  },
  created() {
-   this.priceMatrix = this.buildPriceMatrix();
+   this.buildProductOptionsForm();
  },
  methods: {
-   buildPriceMatrix() {
-     const matrix = {
-       basePrice: this.product_details.base_price,
-       modifiers: {},
-       modifierKeys: [],
-     };
-     this.product_details.customization_options.forEach(field => {
-        const camelCasedKey = this.$toolkit.camelCase(field.label);
-        const def = field.options.find(option => option.default) || field.options[0]; 
-        matrix.modifiers[camelCasedKey] = {
-          label: def.label,
-          value: def.price_modifier
-        };
-        matrix.modifierKeys.push({
-          key: camelCasedKey,
-          label: field.label, 
-        });
-     })
-     if(this.product_details.text_option) {
-       matrix.textOption = {
-         ...this.product_details.text_option,
-         value: ''};
+   buildProductOptionsForm() {
+     const productDetails = this.product_details
+     this.basePrice = productDetails.base_price;
+     this.mixinFormHandler.formFields = [
+       ...productDetails.customization_options
+     ]
+     productDetails.customization_options.forEach(field => {
+       const camelCasedKey = this.$toolkit.camelCase(field.label)
+       const defaultOption = field.options.find(option => option.default) || field.options[0];
+       this.$set(this.form, camelCasedKey, defaultOption.label)
+       this.form[camelCasedKey] = defaultOption.label
+     });
+     if(productDetails.text_option) {
+       this.mixinFormHandler.formFields.push(productDetails.text_option);
+       this.$set(
+         this.form,
+         this.$toolkit.camelCase(productDetails.text_option.label),
+         '',
+        );
      }
-     return matrix
    },
-   getModifierOptionValue(key) {
-     const value = this.priceMatrix.modifiers[key].value
-     return value ? `+ $${value}` : '-';
-   },
-   getModifierOptionLabel(key) {
-     return this.priceMatrix.modifiers[key].label
-   },
-   updatePriceMatrix(payload) {
-     this.priceMatrix.modifiers[payload.prop].value = parseFloat(payload.value);
-     this.priceMatrix.modifiers[payload.prop].label = payload.label;
-   },
-   updateTextOption(payload) {
-     this.priceMatrix.textOption.value = payload.value
-   },
-   getFieldValue(field) {
-     return this.priceMatrix.modifiers[`${this.$toolkit.camelCase(field.label)}`].value
-   },
- }
+  }
 }
 </script>
 
@@ -161,14 +176,13 @@ export default {
 
     .inner {
       @include row(center, stretch);
-      max-width: $medium-width;
+      max-width: $wide-width;
       @include y-pad($space-6);
       @include pad-scale(
         x,
         $default: $space-2,
         $on-phablet: $space-5,
       );
-      background-color: $brand-lightest;
       border: 1px solid $title-color;
       @include shadow($elevation-light);
     }
@@ -196,6 +210,9 @@ export default {
       font-family: $title-font;
       color: $title-color;
       @include border-from($tablet, left, 1px solid $title-color);
+      .modifiers {
+        width: 100%;
+      }
       ul {
         margin-bottom: $space-4;
       }
@@ -209,26 +226,32 @@ export default {
       }
     }
 
-    .total-price {
-      @include row(between, start, $space-4, $no-wrap: true);
-      padding-top: $space-3;
-      margin-top: $space-3;
-      text-align: right;
+    .estimate {
       font-family: $title-font;
       color: $title-color;
-      border-top: 1px dashed $title-color;
-      span {
-        @include media-from($phablet, min-width, 150px);
-        font-size: $title-large;
-        @include media-from($phablet, font-size, $title-larger);
+      .disclaimer {
+        padding-top: $space-4;
+        font-size: $text-small;
       }
-      sup, b {
-        font-size: $title-medium;
-        @include media-from($phablet, font-size, $title-large);
-      }
-      sup {
-        position: relative;
-        top: -$space-2;
+      .total {
+        @include row(between, start, $space-4, $no-wrap: true);
+        padding-top: $space-3;
+        margin-top: $space-3;
+        border-top: 1px dashed $title-color; 
+        text-align: right;
+
+        span {
+          font-size: $title-large;
+          @include media-from($phablet, font-size, $title-larger);
+        }
+        sup, b {
+          font-size: $title-small;
+          @include media-from($phablet, font-size, $title-large);
+        }
+        sup {
+          position: relative;
+          top: -$space-2;
+        }
       }
     }
 

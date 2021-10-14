@@ -1,6 +1,8 @@
 <template>
   <utils-form-field>
-    <label :for="fieldId">{{label}}</label>
+    <label :for="fieldId">
+      {{label}}
+    </label>
     <textarea
       :id="fieldId"
       :value="value"
@@ -16,7 +18,7 @@
 export default {
   props: {
     value: {
-      type: String,
+      type: [String, Number],
       default: '',
     },
     label: {
@@ -46,10 +48,7 @@ export default {
   },
   methods: {
     onInput(e) {
-      this.$emit('updateValue', {
-        prop: this.fieldRef,
-        value: e.target.value,
-      })
+      this.$emit('input', e.target.value);
     }
   }
 }
@@ -71,6 +70,9 @@ export default {
     max-width: 100%;
     padding: $space-1 $space-2;
     border: $input-border;
+    &:placeholder-shown {
+      font-style: italic;
+    }
   }
 
 </style>

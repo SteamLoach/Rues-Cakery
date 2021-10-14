@@ -1,6 +1,6 @@
 {
   "name": "rues-cakery",
-  "version": "1.0.0",
+  "version": "0.6.0",
   "private": true,
   "scripts": {
     "dev": "nuxt",
@@ -14,7 +14,8 @@
     "@nuxtjs/axios": "^5.13.6",
     "core-js": "^3.15.1",
     "nuxt": "^2.15.7",
-    "vue2-transitions": "^0.3.0"
+    "vue2-transitions": "^0.3.0",
+    "vuelidate": "^0.7.6"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.14.7",

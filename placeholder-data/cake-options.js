@@ -12,6 +12,12 @@ export const CAKE_OPTIONS = [
         price_modifier: 10,
         default: true,
       }
+    ],
+    validations: [
+      {
+        validation: 'required',
+        message: 'Please select a size'
+      }
     ]
   },
   {
@@ -42,6 +48,12 @@ export const CAKE_OPTIONS = [
         price_modifier: 5,
         default: false,
       }
+    ],
+    validations: [
+      {
+        validation: 'required',
+        message: 'Please select a flavour'
+      }
     ]
   },
   {
@@ -67,6 +79,12 @@ export const CAKE_OPTIONS = [
         price_modifier: 6,
         default: false,
       },
+    ],
+    validations: [
+      {
+        validation: 'required',
+        message: 'Please select a flavour'
+      }
     ]
   },
   {
