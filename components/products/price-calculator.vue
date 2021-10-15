@@ -8,19 +8,23 @@
           v-for="field in product_details.customization_options"
           :key="`${field.label}-field`"
           v-model="$v.form[$toolkit.camelCase(field.label)].$model"
-          :content="field">
+          :content="field"
+          :field-errors="mixinFormHandler_fieldErrors[$toolkit.camelCase(field.label)]">
         </component>
         <storyblok-forms-form-field-textarea 
           v-if="product_details.text_option"
           v-model="$v.form[$toolkit.camelCase(product_details.text_option.label)].$model"
-          :label="product_details.text_option.label"
-          :placeholder="product_details.text_option.placeholder">
+          :content="product_details.text_option"
+          :field-errors="mixinFormHandler_fieldErrors[$toolkit.camelCase(product_details.text_option.label)]">
         </storyblok-forms-form-field-textarea>
         <storyblok-forms-form-field-date-picker 
           v-model="$v.form[$toolkit.camelCase(product_details.delivery_date.label)].$model"
+          :content="product_details.delivery_date"
           :min-date="earliestAvailableDate"
+          :disabled-dates="disabledDates"
           :is-expanded="true"
-          :button-text="product_details.delivery_date.label">
+          :button-text="product_details.delivery_date.label"
+          :field-errors="mixinFormHandler_fieldErrors[$toolkit.camelCase(product_details.delivery_date.label)]">
         </storyblok-forms-form-field-date-picker>
       </div>
       <div class="pricing">
@@ -61,14 +65,15 @@
       </div>
       <div class="order-notes">
         <storyblok-forms-form-field-textarea
-          label="Order Notes"
-          placeholder="Please add anything else that might be important. Try to be as detailed as possible.">
-
+          v-model="$v.form[$toolkit.camelCase(product_details.order_notes.label)].$model"
+          :content="product_details.order_notes"
+          :field-errors="mixinFormHandler_fieldErrors[$toolkit.camelCase(product_details.order_notes.label)]">
         </storyblok-forms-form-field-textarea>
       </div>
       <div class="send">
         <storyblok-utils-ui-button
-          class="is-wide has-hover-state">
+          class="is-wide has-hover-state"
+          :disabled="!mixinFormHandler_canSubmit">
           <span>Send Enquiry</span>
         </storyblok-utils-ui-button>
       </div>
@@ -106,25 +111,55 @@ export default {
         price_disclaimer: "All prices are estimates only and are subject to change depending on exact requirements.",
         customization_options: CAKE_OPTIONS,
         text_option: {
-          label: 'Add a message',
+          label: 'Add writing',
+          rows: 3,
           price_modifier: 3,
-          placeholder: "Enter your message (optional)",
+          placeholder: "Add writing (optional)",
           validations: [
             {
               validation: 'maxLength',
-              params: 150,
+              params: 50,
               message: 'Max 150 characters'
             }
           ]
         },
         delivery_date: {
           label: 'Pickup date',
-          validations: [],
+          validations: [
+            {
+              validation: 'required',
+              message: 'Please enter a pickup date. This can be changed later if needed'
+            }
+          ],
+        },
+        order_notes: {
+          label: 'Order notes',
+          rows: 5,
+          placeholder: 'Please add any other information that might be useful',
+          validations: [
+            {
+              validation: 'maxLength',
+              params: 300,
+              message: 'Max 300 characters'
+            }
+          ]
         }
       }      
     }
  },
  computed: {
+   disabledDates() {
+     return [
+       {
+         start: new Date("2021-11-10 00:00"),
+         end: new Date("2021-11-20 00:00")
+       },
+       {
+         start: new Date("2021-12-22 00:00"),
+         end: new Date("2021-12-26 00:00")
+       }
+     ]
+   },
    priceMap() {
     const priceMap = [];
     const customizationOptions = this.product_details.customization_options;
@@ -153,7 +188,7 @@ export default {
     const dateOptionFormValue = this.form[this.$toolkit.camelCase(dateOption.label)];
     priceMap.push({
       label: dateOption.label,
-      value: this.$dayjs(dateOptionFormValue).format('ddd DD MMMM YYYY'),
+      value: dateOptionFormValue ? this.$dayjs(dateOptionFormValue).format('ddd DD MMMM YYYY') : '',
       priceModifierText: '',
       priceModifier: 0,
     })
@@ -167,6 +202,14 @@ export default {
    earliestAvailableDate() {
      const date = new Date();
      return date.setDate(date.getDate() + 7);
+   },
+   serializedFormData() {
+     const serializedPairs = [];
+     Object.keys(this.form).forEach(key => {
+       serializedPairs.push(`${encodeURIComponent(key)}=${encodeURIComponent(this.form[key])}`)
+     })
+     const serializedData = serializedPairs.join('&').replace(/%20/g, '+')
+     return `form-name=enquiryForm&${serializedData}`
    }
  },
  created() {
@@ -186,21 +229,20 @@ export default {
        this.form[camelCasedKey] = defaultOption.label
      });
      if(productDetails.text_option) {
-       this.mixinFormHandler.formFields.push(productDetails.text_option);
-       this.$set(
-         this.form,
-         this.$toolkit.camelCase(productDetails.text_option.label),
-         '',
-        );
+       this.setAdditionalFields('text_option');
      }
-     this.mixinFormHandler.formFields.push(productDetails.delivery_date);
-     this.$set(
-       this.form,
-       this.$toolkit.camelCase(productDetails.delivery_date.label),
-       this.earliestAvailableDate,
-     );
+     this.setAdditionalFields('delivery_date');
+     this.setAdditionalFields('order_notes');
    },
-  }
+    setAdditionalFields(prop, val = '') {
+    this.mixinFormHandler.formFields.push(this.product_details[prop]);
+      this.$set(
+        this.form,
+        this.$toolkit.camelCase(this.product_details[prop].label),
+        val
+      );
+    }
+  },
 }
 </script>
 
@@ -240,6 +282,14 @@ export default {
         $on-tablet: $space-4,
         $on-laptop: $space-5
       );
+    }
+
+    .options {
+      @media screen and (max-width: $tablet) {
+        padding-bottom: $space-4;
+        margin-bottom: $space-6;
+        border-bottom: 1px solid $title-color;
+      }
     }
 
     .pricing {

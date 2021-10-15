@@ -3,6 +3,7 @@
     :is="tag"
     class="ui-button"
     :href="href"
+    :disabled="disabled"
     @click.prevent="onClick">
     <slot />
   </component>
@@ -21,6 +22,10 @@ export default {
     href: {
       type: String,
       default: '',
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     }
   },
   methods: {
@@ -51,16 +56,21 @@ export default {
 
     &.is-filled,
     &.has-hover-state:hover {
-      color: $page-background;
-      background: $title-color;
-      &.primary {
-        border-color: $brand-darker;
-        background: $brand-darker;
+      &:not(:disabled) {
+        color: $page-background;
+        background: $title-color;
+        &.primary {
+          border-color: $brand-darker;
+          background: $brand-darker;
+        }
       }
     }
 
-    &:hover {
-      cursor: pointer;
+    &:disabled {
+      cursor: not-allowed;
+      color: $shade-dark;
+      border-color: $shade-lighter;
+      background: $shade-lighter;
     }
 
   }

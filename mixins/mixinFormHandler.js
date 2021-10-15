@@ -56,6 +56,9 @@ export const mixinFormHandler = {
         }
       })
       return errorObj;
+    },
+    mixinFormHandler_canSubmit() {
+      return !this.$v[this.mixinFormHandler_formName].$invalid;
     }
   },
 
