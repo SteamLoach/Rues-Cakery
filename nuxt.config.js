@@ -41,7 +41,8 @@ export default {
   plugins: [
     '~/plugins/globalComponents.js',
     '~/plugins/toolkit.js',
-    '~/plugins/logger.js'
+    '~/plugins/logger.js',
+    {src: '~/plugins/vDatePicker.js', mode: 'client'}
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -59,6 +60,7 @@ export default {
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     '@nuxtjs/style-resources',
+    '@nuxtjs/dayjs'
   ],
   styleResources: {
     scss: [

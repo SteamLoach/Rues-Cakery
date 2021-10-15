@@ -4,6 +4,7 @@
 
 <script>
 
+import CalendarIcon from '~/assets/vectors/calendar.svg?inline'
 import InstagramIcon from '~/assets/vectors/instagram_glyph_logo.svg?inline'
 import RightChevron from '~/assets/vectors/mdi_chevron_right.svg?inline'
 import UndrawWorkFromAnywhere from '~/assets/vectors/undraw_work_from_anywhere.svg?inline'
@@ -11,6 +12,7 @@ import UndrawWorkFromAnywhere from '~/assets/vectors/undraw_work_from_anywhere.s
 export default {
 
   components: {
+    CalendarIcon,
     InstagramIcon,
     RightChevron,
     UndrawWorkFromAnywhere,

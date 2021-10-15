@@ -18,8 +18,8 @@ module.exports = {
   // add your custom rules here
   rules: {
     "vue/component-definition-name-casing": [
+      "PascalCase" | "kebab-case",
       "error",
-      "PascalCase" | "kebab-case"
     ]
   }
 }

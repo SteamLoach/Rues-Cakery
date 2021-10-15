@@ -16,6 +16,12 @@
           :label="product_details.text_option.label"
           :placeholder="product_details.text_option.placeholder">
         </storyblok-forms-form-field-textarea>
+        <storyblok-forms-form-field-date-picker 
+          v-model="$v.form[$toolkit.camelCase(product_details.delivery_date.label)].$model"
+          :min-date="earliestAvailableDate"
+          :is-expanded="true"
+          :button-text="product_details.delivery_date.label">
+        </storyblok-forms-form-field-date-picker>
       </div>
       <div class="pricing">
         <div class="modifiers">
@@ -53,6 +59,13 @@
           </p>
         </div>
       </div>
+      <div class="order-notes">
+        <storyblok-forms-form-field-textarea
+          label="Order Notes"
+          placeholder="Please add anything else that might be important. Try to be as detailed as possible.">
+
+        </storyblok-forms-form-field-textarea>
+      </div>
       <div class="send">
         <storyblok-utils-ui-button
           class="is-wide has-hover-state">
@@ -66,12 +79,12 @@
 <script>
 
 import {mixinFormHandler} from '@/mixins/mixinFormHandler'
-
 import {CAKE_OPTIONS} from '@/placeholder-data/cake-options'
 
 export default {
   
   mixins: [mixinFormHandler],
+
   /*
   props: {
     content: {
@@ -103,6 +116,10 @@ export default {
               message: 'Max 150 characters'
             }
           ]
+        },
+        delivery_date: {
+          label: 'Pickup date',
+          validations: [],
         }
       }      
     }
@@ -132,6 +149,14 @@ export default {
         priceModifier: formValue ? priceModifier : 0,
       })
     }
+    const dateOption = this.product_details.delivery_date;
+    const dateOptionFormValue = this.form[this.$toolkit.camelCase(dateOption.label)];
+    priceMap.push({
+      label: dateOption.label,
+      value: this.$dayjs(dateOptionFormValue).format('ddd DD MMMM YYYY'),
+      priceModifierText: '',
+      priceModifier: 0,
+    })
     return priceMap;
    },
    totalPrice() {
@@ -139,6 +164,10 @@ export default {
      this.priceMap.forEach(item => {modifiers += item.priceModifier});
      return (this.basePrice + modifiers).toFixed(2);
    },
+   earliestAvailableDate() {
+     const date = new Date();
+     return date.setDate(date.getDate() + 7);
+   }
  },
  created() {
    this.buildProductOptionsForm();
@@ -164,6 +193,12 @@ export default {
          '',
         );
      }
+     this.mixinFormHandler.formFields.push(productDetails.delivery_date);
+     this.$set(
+       this.form,
+       this.$toolkit.camelCase(productDetails.delivery_date.label),
+       this.earliestAvailableDate,
+     );
    },
   }
 }
@@ -173,6 +208,7 @@ export default {
 
   .price-calculator {
     padding: $space-8 $space-4;
+    background: $brand-lightest;
 
     .inner {
       @include row(center, stretch);
@@ -184,6 +220,7 @@ export default {
         $on-phablet: $space-5,
       );
       border: 1px solid $title-color;
+      background: $page-background;
       @include shadow($elevation-light);
     }
 
@@ -193,15 +230,15 @@ export default {
 
     .options,
     .pricing {
+      @include column-scale(
+        $default: 24,
+        $on-tablet: 12,
+      );
       @include pad-scale(
         x,
         $default: $space-2,
         $on-tablet: $space-4,
         $on-laptop: $space-5
-      );
-      @include column-scale(
-        $default: 24,
-        $on-tablet: 12,
       );
     }
 
@@ -255,9 +292,22 @@ export default {
       }
     }
 
+    .order-notes {
+      width: 100%;
+      padding-top: $space-6;
+      margin-top: $space-7;
+      margin-bottom: $space-4;
+      @include margin-scale(
+        x,
+        $default: $space-2,
+        $on-tablet: $space-4,
+        $on-laptop: $space-5
+      );
+      border-top: 1px solid $title-color;
+    }
+
     .send {
       @include row(center, center);
-      margin-top: $space-6;
     }
 
   }

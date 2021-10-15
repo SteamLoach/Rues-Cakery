@@ -47,7 +47,7 @@ export default {
           }
         ],
         product_details: {
-          base_price: 40,
+          base_price: 50,
           customization_options: [
             [
               {
