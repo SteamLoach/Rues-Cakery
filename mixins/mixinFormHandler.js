@@ -30,19 +30,56 @@ export const mixinFormHandler = {
   data() {
     return {
       mixinFormHandler_groupTitle: null,
+      mixinFormHandler_formKey: 'form',
       mixinFormHandler_formName: 'form',
     }
   },
 
   validations() {
     return {
-      [this.mixinFormHandler_formName]: this.mixinFormHandler_buildValidations()
+      [this.mixinFormHandler_formKey]: this.mixinFormHandler_buildValidations()
     }
   },
 
   computed: {
+    mixinFormHandler_canSubmit() {
+      return !this.$v[this.mixinFormHandler_formKey].$invalid;
+    },
+    mixinFormHandler_augmentedFields() {
+      return this[mixinName].formFields.map((field, index) => {
+        const camelCaseLabel = this.$toolkit.camelCase(field.label);
+        const kebabCaseLabel = this.$toolkit.kebabCase(field.label);
+        let defaultVal = field.default_value;
+        if(field.options) {
+          const defaultOption = field.options.find(option => option.default) || field.options[0]
+          defaultVal = defaultOption.label
+        }
+        const required = field.validations ? field.validations.find(item => item.validation === 'required') : false;
+        const fieldErrors = this.mixinFormHandler_fieldErrors[camelCaseLabel].length;
+        return {
+          ...field,
+          key: `${kebabCaseLabel}-field-${index}`,
+          id: kebabCaseLabel,
+          name: camelCaseLabel,
+          defaultVal,
+          required,
+          fieldErrors,
+        }
+      });
+    },
+    mixinFormHandler_serializedFormData() {
+       const serializedFormName = `form-name=${encodeURIComponent(this.mixinFormHandler_formName)}`;
+       const formData = this[this.mixinFormHandler_formKey];
+       const serializedFieldArray = [];
+       this.mixinFormHandler_augmentedFields.forEach(field => {
+         serializedFieldArray.push(`${encodeURIComponent(field.label)}=${encodeURIComponent(formData[field.name])}`)
+       });
+       const serializedFieldString = serializedFieldArray.join('&');
+       const serializedForm = `${serializedFormName}&${serializedFieldString}`;
+       return serializedForm.replace(/%20/g, '+');
+    },
     mixinFormHandler_fieldErrors() {
-      const formModel = this.$v[this.mixinFormHandler_formName];
+      const formModel = this.$v[this.mixinFormHandler_formKey];
       const errorObj = {};
       this[mixinName].formFields.forEach(field => {
         const fieldRef = this.$toolkit.camelCase(field.label);
@@ -57,29 +94,31 @@ export const mixinFormHandler = {
       })
       return errorObj;
     },
-    mixinFormHandler_canSubmit() {
-      return !this.$v[this.mixinFormHandler_formName].$invalid;
-    }
   },
-
   mounted() {
     this.mixinFormHandler_groupTitle = `${mixinName} called from ${this.logRef}`;
-
     log.group(this.mixinFormHandler_groupTitle);
-
     if(!this[mixinName]) {
       return log.warn(`make sure to set a ${mixinName} data object`)
     }
-
     if(this[mixinName].formName) {
-      this.mixinFormHandler_formName = this[mixinName.formName];
+      this.mixinFormHandler_formName = this[mixinName].formName;
     }
-
+    if(this[mixinName].formKey) {
+      this.mixinFormHandler_formKey = this[mixinName].formKey;
+    }
     log.groupEnd();
-
   },
-
   methods: {
+    mixinFormHandler_buildForm() {
+      this.mixinFormHandler_augmentedFields.forEach(field => {
+        this.$set(
+          this[this.mixinFormHandler_formKey],
+          field.name,
+          field.defaultVal ? field.defaultVal : ''
+        );
+      });
+    },
     mixinFormHandler_buildValidations() {
       const validationObj = {};
       this[mixinName].formFields.forEach(field => {

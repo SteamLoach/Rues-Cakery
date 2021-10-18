@@ -1,6 +1,6 @@
 <template>
   <utils-form-field :field-errors="fieldErrors">
-    <label :for="fieldId">
+    <label :for="content.id">
       <span>
         {{content.label}}
       </span>
@@ -12,8 +12,8 @@
       </span>
     </label>
     <textarea
-      :id="fieldId"
-      :class="{'has-field-errors': hasFieldErrors}"
+      :id="content.id"
+      :class="{'has-field-errors': content.fieldErrors}"
       :value="value"
       :rows="content.rows"
       :maxlength="maxLength"
@@ -45,16 +45,7 @@ export default {
       default: () => [],
     }
   },
-  computed: {
-    fieldId() {
-      return this.$toolkit.kebabCase(`${this.content.label}-textarea`)
-    },
-    fieldRef() {
-      return this.$toolkit.camelCase(this.content.label)
-    },
-    hasFieldErrors() {
-      return this.fieldErrors.length
-    },  
+  computed: { 
     maxLength() {
       return this.content.validations.find(item =>  item.validation === 'maxLength').params;
     },

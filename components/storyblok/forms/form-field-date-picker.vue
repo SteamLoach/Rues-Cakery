@@ -2,15 +2,17 @@
   <!-- client only as v-date-picker references document -->
   <client-only>
     <utils-form-field :field-errors="fieldErrors">
-      <label :for="fieldId">
-        {{content.label}}{{isRequired ? '*' : ''}}
+      <label :for="content.id">
+        {{content.label}}
+        <sup class="required">
+          {{content.required ? '*required' : ''}}
+        </sup>
       </label>
       <v-date-picker
         class="form-field-date-picker"
         :value="value"
         :min-date="minDate"
         :disabled-dates="disabledDates"
-        :is-expanded="isExpanded"
         color="green"
         @popoverDidShow="updatePickerIsShown(true)"
         @popoverDidHide="updatePickerIsShown(false)"
@@ -18,7 +20,7 @@
         <template #default="{togglePopover}">
           <div 
             class="input-wrapper"
-            :class="{'has-field-errors': hasFieldErrors}">
+            :class="{'has-field-errors': content.fieldErrors}">
             <button
               class="calendar-button"
               title="Toggle date picker"
@@ -33,7 +35,7 @@
                 :key="formattedValue"
                 :value="formattedValue"
                 readonly
-                :placeholder="placeholder"
+                :placeholder="content.placeholder"
                 @click="togglePopover()">
             </slide-y-down-transition>
             <fade-transition>
@@ -74,18 +76,6 @@ export default {
       type: Array,
       default: () => []
     },
-    isExpanded: {
-      type: Boolean,
-      default: false,
-    },
-    buttonText: {
-      type: String,
-      default: 'Select date'
-    },
-    placeholder: {
-      type: String,
-      default: 'Please select a date'
-    },
     fieldErrors: {
       type: Array,
       default: () => []
@@ -97,15 +87,6 @@ export default {
     }
   },
   computed: {
-    fieldId() {
-      return this.$toolkit.camelCase(this.content.label);
-    },
-    hasFieldErrors() {
-      return this.fieldErrors.length
-    },
-    isRequired() {
-      return this.content?.validations.find(item => item.validation === 'required');
-    },
     formattedValue() {
       return this.value ? this.$dayjs(this.value).format('ddd DD MMMM YYYY') : ''
     }
@@ -127,6 +108,12 @@ export default {
     width: 100%;
     font-weight: $input-label-weight;
     color: $input-label-color;
+    sup {
+      position: relative;
+      top: 2px;
+      font-size: $text-smallest;
+      font-style: italic;
+    }
   }
 
   .form-field-date-picker::v-deep {
@@ -176,6 +163,9 @@ export default {
       flex: 1;
       &:placeholder-shown {
         font-style: italic;
+      }
+      &:hover {
+        cursor: pointer;
       }
     }
   }

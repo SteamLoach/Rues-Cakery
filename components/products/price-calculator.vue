@@ -6,25 +6,26 @@
         <component 
           :is="'form-field-select'"
           v-for="field in product_details.customization_options"
-          :key="`${field.label}-field`"
-          v-model="$v.form[$toolkit.camelCase(field.label)].$model"
-          :content="field"
-          :field-errors="mixinFormHandler_fieldErrors[$toolkit.camelCase(field.label)]">
+          :key="getAugmentedField(field).key"
+          v-model="$v.form[getAugmentedField(field).name].$model"
+          :content="getAugmentedField(field)"
+          :field-errors="mixinFormHandler_fieldErrors[getAugmentedField(field).name]">
         </component>
         <storyblok-forms-form-field-textarea 
-          v-if="product_details.text_option"
-          v-model="$v.form[$toolkit.camelCase(product_details.text_option.label)].$model"
-          :content="product_details.text_option"
-          :field-errors="mixinFormHandler_fieldErrors[$toolkit.camelCase(product_details.text_option.label)]">
+          v-for="field in product_details.text_option"
+          :key="getAugmentedField(field).key"
+          v-model="$v.form[getAugmentedField(field).name].$model"
+          :content="getAugmentedField(field)"
+          :field-errors="mixinFormHandler_fieldErrors[getAugmentedField(field).name]">
         </storyblok-forms-form-field-textarea>
         <storyblok-forms-form-field-date-picker 
-          v-model="$v.form[$toolkit.camelCase(product_details.delivery_date.label)].$model"
-          :content="product_details.delivery_date"
+          v-for="field in product_details.date_option"
+          :key="getAugmentedField(field).key"
+          v-model="$v.form[getAugmentedField(field).name].$model"
+          :content="getAugmentedField(field)"
           :min-date="earliestAvailableDate"
           :disabled-dates="disabledDates"
-          :is-expanded="true"
-          :button-text="product_details.delivery_date.label"
-          :field-errors="mixinFormHandler_fieldErrors[$toolkit.camelCase(product_details.delivery_date.label)]">
+          :field-errors="mixinFormHandler_fieldErrors[getAugmentedField(field).name]">
         </storyblok-forms-form-field-date-picker>
       </div>
       <div class="pricing">
@@ -33,7 +34,7 @@
           <ul>
             <li>
               <b>Base Price:</b>
-              <span>${{basePrice}}</span>
+              <span>${{product_details.base_price}}</span>
             </li>
             <template v-for="item in priceMap">
               <slide-x-right-transition 
@@ -65,12 +66,14 @@
       </div>
       <div class="order-notes">
         <storyblok-forms-form-field-textarea
-          v-model="$v.form[$toolkit.camelCase(product_details.order_notes.label)].$model"
-          :content="product_details.order_notes"
-          :field-errors="mixinFormHandler_fieldErrors[$toolkit.camelCase(product_details.order_notes.label)]">
+          v-for="field in product_details.order_notes"
+          :key="getAugmentedField(field).key"
+          v-model="$v.form[getAugmentedField(field).name].$model"
+          :content="getAugmentedField(field)"
+          :field-errors="mixinFormHandler_fieldErrors[getAugmentedField(field).name]">
         </storyblok-forms-form-field-textarea>
       </div>
-      <div class="send">
+      <div class="form-controls">
         <storyblok-utils-ui-button
           class="is-wide has-hover-state"
           :disabled="!mixinFormHandler_canSubmit">
@@ -102,48 +105,55 @@ export default {
     return {
       logRef: '<price-calculator>',
       mixinFormHandler: {
-        formFields: []
+        formFields: [],
+        formName: 'Product Form'
       },
-      basePrice: null,
       form: {},
       product_details: {
         base_price: 50,
         price_disclaimer: "All prices are estimates only and are subject to change depending on exact requirements.",
         customization_options: CAKE_OPTIONS,
-        text_option: {
-          label: 'Add writing',
-          rows: 3,
-          price_modifier: 3,
-          placeholder: "Add writing (optional)",
-          validations: [
+        text_option: [
             {
-              validation: 'maxLength',
-              params: 50,
-              message: 'Max 150 characters'
-            }
-          ]
-        },
-        delivery_date: {
-          label: 'Pickup date',
-          validations: [
-            {
-              validation: 'required',
-              message: 'Please enter a pickup date. This can be changed later if needed'
-            }
-          ],
-        },
-        order_notes: {
-          label: 'Order notes',
-          rows: 5,
-          placeholder: 'Please add any other information that might be useful',
-          validations: [
-            {
-              validation: 'maxLength',
-              params: 300,
-              message: 'Max 300 characters'
-            }
-          ]
-        }
+              label: 'Add writing',
+              rows: 3,
+              price_modifier: 3,
+              placeholder: "Add writing (optional)",
+              validations: [
+                {
+                  validation: 'maxLength',
+                  params: 50,
+                  message: 'Max 150 characters'
+                }
+              ]
+          }
+        ],
+        date_option: [
+          {
+            label: 'Pickup date',
+            placeholder: "Please select a date",
+            validations: [
+              {
+                validation: 'required',
+                message: 'Please enter a pickup date. This can be changed later if needed'
+              }
+            ],
+          }
+        ],
+        order_notes: [
+          {
+            label: 'Order notes',
+            rows: 5,
+            placeholder: 'Please add any other information that might be useful',
+            validations: [
+              {
+                validation: 'maxLength',
+                params: 300,
+                message: 'Max 300 characters'
+              }
+            ]
+          }
+        ]
       }      
     }
  },
@@ -162,10 +172,10 @@ export default {
    },
    priceMap() {
     const priceMap = [];
-    const customizationOptions = this.product_details.customization_options;
-    customizationOptions.forEach(field => {
-      const formValue = this.form[this.$toolkit.camelCase(field.label)]
-      const priceModifier = field.options.find(option => option.label === formValue).price_modifier; 
+    this.product_details.customization_options.forEach(field => {
+      const augmentedField = this.getAugmentedField(field);
+      const formValue = this.form[augmentedField.name];
+      const priceModifier = field.options.find(option => option.label === formValue).value; 
       priceMap.push({
         label: field.label,
         value: formValue,
@@ -173,31 +183,31 @@ export default {
         priceModifier,
       })
     })
-    if(this.product_details.text_option) {
-      const textOption = this.product_details.text_option;
-      const formValue = this.form[this.$toolkit.camelCase(textOption.label)]
-      const priceModifier = textOption.price_modifier
+    this.product_details.text_option.forEach(field => {
+      const formValue = this.form[this.getAugmentedField(field).name];
       priceMap.push({
-        label: textOption.label,
+        label: field.label,
         value: formValue ? 'Yes' : '',
-        priceModifierText: formValue ? `+ $${priceModifier}` : '-', 
-        priceModifier: formValue ? priceModifier : 0,
+        priceModifierText: formValue ? `+ $${field.price_modifier}` : '-', 
+        priceModifier: formValue ? field.price_modifier : 0,
       })
-    }
-    const dateOption = this.product_details.delivery_date;
-    const dateOptionFormValue = this.form[this.$toolkit.camelCase(dateOption.label)];
-    priceMap.push({
-      label: dateOption.label,
-      value: dateOptionFormValue ? this.$dayjs(dateOptionFormValue).format('ddd DD MMMM YYYY') : '',
-      priceModifierText: '',
-      priceModifier: 0,
     })
+    this.product_details.date_option.forEach(field => {
+      const formValue = this.form[this.getAugmentedField(field).name];  
+        priceMap.push({
+          label: field.label,
+          value: formValue ?
+            this.$dayjs(formValue).format('ddd DD MMMM YYYY') : '',
+          priceModifierText: '',
+          priceModifier: 0,
+        })    
+    }) 
     return priceMap;
    },
    totalPrice() {
      let modifiers = 0;
      this.priceMap.forEach(item => {modifiers += item.priceModifier});
-     return (this.basePrice + modifiers).toFixed(2);
+     return (this.product_details.base_price + modifiers).toFixed(2);
    },
    earliestAvailableDate() {
      const date = new Date();
@@ -213,34 +223,17 @@ export default {
    }
  },
  created() {
-   this.buildProductOptionsForm();
+   this.mixinFormHandler.formFields = [
+     ...this.product_details.customization_options,
+     ...this.product_details.text_option,
+     ...this.product_details.date_option,
+     ...this.product_details.order_notes,
+   ];
+   this.mixinFormHandler_buildForm();
  },
  methods: {
-   buildProductOptionsForm() {
-     const productDetails = this.product_details
-     this.basePrice = productDetails.base_price;
-     this.mixinFormHandler.formFields = [
-       ...productDetails.customization_options
-     ]
-     productDetails.customization_options.forEach(field => {
-       const camelCasedKey = this.$toolkit.camelCase(field.label)
-       const defaultOption = field.options.find(option => option.default) || field.options[0];
-       this.$set(this.form, camelCasedKey, defaultOption.label)
-       this.form[camelCasedKey] = defaultOption.label
-     });
-     if(productDetails.text_option) {
-       this.setAdditionalFields('text_option');
-     }
-     this.setAdditionalFields('delivery_date');
-     this.setAdditionalFields('order_notes');
-   },
-    setAdditionalFields(prop, val = '') {
-    this.mixinFormHandler.formFields.push(this.product_details[prop]);
-      this.$set(
-        this.form,
-        this.$toolkit.camelCase(this.product_details[prop].label),
-        val
-      );
+    getAugmentedField(field) {
+      return this.mixinFormHandler_augmentedFields.find(augmentedField => field.label === augmentedField.label);
     }
   },
 }
@@ -356,7 +349,7 @@ export default {
       border-top: 1px solid $title-color;
     }
 
-    .send {
+    .form-controls {
       @include row(center, center);
     }
 

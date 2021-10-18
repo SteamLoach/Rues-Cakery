@@ -1,12 +1,12 @@
 <template>
     <utils-form-field :field-errors="fieldErrors">
-    <label :for="fieldId">
+    <label :for="content.id">
       {{content.label}}
     </label>
     <select 
-      :id="fieldId"
+      :id="content.id"
       :value="value"
-      :class="{'has-field-errors': hasFieldErrors}"
+      :class="{'has-field-errors': content.fieldErrors}"
       @input="onInput">
       <option 
         v-for="option in content.options"
@@ -31,14 +31,6 @@ export default {
     fieldErrors: {
       type: Array,
       default: () => []
-    }
-  },
-  computed: {
-    fieldId() {
-      return `${this.$toolkit.kebabCase(this.content.label)}-select-field`;
-    },
-    hasFieldErrors() {
-      return this.fieldErrors.length
     }
   },
   methods: {
