@@ -6,18 +6,14 @@
         {{content.isRequired ? '*required' : ''}}
       </sup>
     </label>
-    <select 
+    <input
       :id="content.id"
-      :name="content.id"
-      :value="value"
       :class="{'has-field-errors': content.hasFieldErrors}"
+      :name="content.id"
+      :type="content.type"
+      :maxlength="maxLength"
+      :value="value"
       @input="onInput">
-      <option 
-        v-for="option in content.options"
-        :key="option.label">
-        {{option.label}}
-      </option>
-    </select>
   </utils-form-field>
 </template>
 
@@ -33,18 +29,24 @@ export default {
       default: () => {}
     },
   },
+  computed: {
+    maxLength() {
+      const maxLengthRule = this.content.validations.find(item =>  item.validation === 'maxLength')
+      return maxLengthRule ? maxLengthRule.params : false
+    },
+  },
   methods: {
     onInput(e) {
       this.$emit('input', e.target.value);
     }
-  }
+  } 
 }
 </script>
 
 <style lang="scss" scoped>
 
-  label, select {
-    display: block;
+  label,
+  input {
     width: 100%;
   }
 
@@ -59,12 +61,12 @@ export default {
     }
   }
 
-  select {
+  input {
     padding: $space-1 $space-2;
     border: $input-border;
     &.has-field-errors {
       border: $input-with-error-border;
-    }
+    }    
   }
 
 </style>

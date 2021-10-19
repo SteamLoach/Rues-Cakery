@@ -1,5 +1,7 @@
 <template>
-  <div class="form-field">
+  <div 
+    class="form-field"
+    :class="content.class_extensions">
     <slot />
     <slide-x-left-transition mode="out-in">
       <p 
@@ -17,19 +19,15 @@
 export default {
 
   props: {
-    hint: {
-      type: String,
-      default: '',
-    },
-    fieldErrors: {
-      type: Array,
-      default: () => [],
+    content: {
+      type: Object,
+      required: true,
     }
   },
 
   computed: {
     currentError() {
-      return this.fieldErrors[0]
+      return this.content.fieldErrors[0]
     }
   }
 
@@ -41,8 +39,9 @@ export default {
   .form-field {
     width: 100%;
     margin-bottom: $space-1;
+    @include x-pad($space-2);
     
-    &.half-width {
+    &.is-half-width {
       @include column-scale(
         $default: 24,
         $on-tablet: 12,

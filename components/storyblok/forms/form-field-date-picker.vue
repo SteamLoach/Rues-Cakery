@@ -1,11 +1,11 @@
 <template>
   <!-- client only as v-date-picker references document -->
   <client-only>
-    <utils-form-field :field-errors="fieldErrors">
+    <utils-form-field :content="content">
       <label :for="content.id">
         {{content.label}}
         <sup class="required">
-          {{content.required ? '*required' : ''}}
+          {{content.isRequired ? '*required' : ''}}
         </sup>
       </label>
       <v-date-picker
@@ -20,7 +20,7 @@
         <template #default="{togglePopover}">
           <div 
             class="input-wrapper"
-            :class="{'has-field-errors': content.fieldErrors}">
+            :class="{'has-field-errors': content.hasFieldErrors}">
             <button
               class="calendar-button"
               title="Toggle date picker"
@@ -32,7 +32,9 @@
             </button>
             <slide-y-down-transition mode="out-in">
               <input 
+                :id="content.id"
                 :key="formattedValue"
+                :name="content.id"
                 :value="formattedValue"
                 readonly
                 :placeholder="content.placeholder"
@@ -76,10 +78,6 @@ export default {
       type: Array,
       default: () => []
     },
-    fieldErrors: {
-      type: Array,
-      default: () => []
-    }
   },
   data() {
     return {
@@ -111,7 +109,7 @@ export default {
     sup {
       position: relative;
       top: 2px;
-      font-size: $text-smallest;
+      font-size: 10px;
       font-style: italic;
     }
   }

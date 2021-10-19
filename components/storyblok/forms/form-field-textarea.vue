@@ -1,5 +1,5 @@
 <template>
-  <utils-form-field :field-errors="fieldErrors">
+    <utils-form-field :content="content">
     <label :for="content.id">
       <span>
         {{content.label}}
@@ -13,7 +13,8 @@
     </label>
     <textarea
       :id="content.id"
-      :class="{'has-field-errors': content.fieldErrors}"
+      :class="{'has-field-errors': content.hasFieldErrors}"
+      :name="content.id"
       :value="value"
       :rows="content.rows"
       :maxlength="maxLength"
@@ -40,14 +41,11 @@ export default {
       type: Boolean,
       default: false,
     },
-    fieldErrors: {
-      type: Array,
-      default: () => [],
-    }
   },
   computed: { 
     maxLength() {
-      return this.content.validations.find(item =>  item.validation === 'maxLength').params;
+      const maxLengthRule = this.content.validations.find(item =>  item.validation === 'maxLength')
+      return maxLengthRule ? maxLengthRule.params : false
     },
     exceedsMaxLength() {
       return this.value.length > this.maxLength
