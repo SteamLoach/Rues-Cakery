@@ -1,5 +1,5 @@
 <template>
-    <utils-form-field :content="content">
+  <utils-form-field :content="content">
     <label :for="content.id">
       {{content.label}}
       <sup class="required">

@@ -26,6 +26,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false,
+    },
+    loading: {
+      type: Boolean,
+      default: false,
     }
   },
   methods: {

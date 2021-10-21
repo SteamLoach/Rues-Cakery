@@ -104,14 +104,30 @@
           v-model="$v.form[getAugmentedField(field).name].$model"
           :content="getAugmentedField(field)">
         </storyblok-forms-form-field-input>
+        <!--
+          Form consent validation is handled in form and validation by the 'formConsent' prop. Augmented field is only used to generate props for checkbox component and isn't bound to a data model. 
+         -->
+        <storyblok-forms-form-field-checkbox
+          v-for="field in product_details.form_consent"
+          :key="getAugmentedField(field).key"
+          v-model="$v.form.formConsent.$model"
+          :content="getAugmentedField(field)">
+        </storyblok-forms-form-field-checkbox>
       </section>
       <section class="form-controls">
         <storyblok-utils-ui-button
           class="is-wide has-hover-state"
           :disabled="!mixinFormHandler_canSubmit"
+          :loading="true"
           @onClick="mixinFormHandler_postForm">
-            Send Enquiry
+            {{product_details.form_submit.button_text}}
         </storyblok-utils-ui-button>
+        <utils-form-post-state
+          :content="product_details.form_submit"
+          :is-posting="mixinFormHandler_isPosting"
+          :has-attempted-post="mixinFormHandler_hasAttemptedPost"
+          :has-successful-post="mixinFormHandler_hasSuccessfulPost">
+        </utils-form-post-state>
       </section>
     </form>
   </section>
@@ -122,8 +138,9 @@
 import {mixinFormHandler} from '@/mixins/mixinFormHandler'
 import {CAKE_OPTIONS} from '@/placeholder-data/cake-options'
 
+
 export default {
-  
+
   mixins: [mixinFormHandler],
 
   /*
@@ -139,8 +156,9 @@ export default {
       logRef: '<price-calculator>',
       mixinFormHandler: {
         formFields: [],
+        formConsent: true,
         formName: 'Enquiry Form',
-        serializedFormSource: 'serializedFormData',
+        serializedFormDataSource: 'serializedFormData',
       },
       form: {},
       product_details: {
@@ -228,7 +246,18 @@ export default {
             ],
             class_extensions: ['is-half-width']
           }
-        ]
+        ],
+        form_consent: [
+          {
+            label: "I agree to this information being used solely to contact me about my enquiry"
+          }
+        ],
+        form_submit: {
+          button_text: 'Send Enquiry',
+          sending_message: 'Sending...',
+          success_message: 'Thanks for your enquiry!',
+          error_message: `Something went wrong, please try again`
+        }
       }      
     }
  },
@@ -273,13 +302,12 @@ export default {
       })
     })
     this.product_details.date_option.forEach(field => {
-      const formValue = this.form[this.getAugmentedField(field).name];  
+      const formValue = this.form[this.getAugmentedField(field).name];
+      const formattedFormValue = this.$dayjs(formValue).format('ddd DD MMMM YYYY')
         priceMap.push({
           label: field.label,
-          value: formValue ?
-            this.$dayjs(formValue).format('ddd DD MMMM YYYY') : '',
-          formValue: formValue ?
-            this.$dayjs(formValue).format('ddd DD MMMM YYYY') : '',
+          value: formValue ? formattedFormValue : '',
+          formValue: formValue ? formattedFormValue : '',
           priceModifierText: '',
           priceModifier: 0,
         })    
@@ -315,7 +343,10 @@ export default {
        const fieldString = encodeURIComponent(this.form[augmentedField.name]);
        formData.push(`${fieldLabel}=${fieldString}`);
      })
-     formData.push()
+     // handle total price
+     const totalPriceLabel = encodeURIComponent(`Total Price`);
+     const totalPriceString = encodeURIComponent(`$${this.totalPrice}`);
+     formData.push(`${totalPriceLabel}=${totalPriceString}`)
      const serializedFormData = formData.join('&');
      const serializedForm = `${serializedFormName}&${serializedFormData}`
      return serializedForm.replace(/%20/g, '+');
@@ -328,12 +359,14 @@ export default {
      ...this.product_details.date_option,
      ...this.product_details.order_notes,
      ...this.product_details.contact_details,
+     ...this.product_details.form_consent,
    ];
-   this.mixinFormHandler_buildForm();
    this.mixinFormHandler.formName = this.formName;
+   this.mixinFormHandler_buildForm();
  },
  methods: {
     getAugmentedField(field) {
+      // necessary as we need more control over where fields are rendered instead of rendering a list based on augmented fields only
       return this.mixinFormHandler_augmentedFields.find(augmentedField => field.label === augmentedField.label);
     }
   },
