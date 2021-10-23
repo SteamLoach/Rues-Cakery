@@ -1,13 +1,9 @@
 /********************
 
-Mixin watches for changes in window dimensions and responds 
-as defined in 'onResize' method
+## Configurable Pros ##
 
-Mixin requires a mixinWindowResizeListener data object
-
-{
-  onResize(width, height): method to call when window is resized
-}
+_onResize
+  Function to fire on debounced resize
 
 ********************/
 
@@ -20,27 +16,12 @@ const log = logger({
   time: false,
 })
 
-const mixinName = 'mixinWindowResizeListener'
-
 export const mixinWindowResizeListener = {
-
-  data() {
-    return {
-      mixinWindowResizeListener_groupTitle: null,
-    }
-  },
 
   mounted() {
 
-    this.mixinWindowResizeListener_groupTitle = `${mixinName} called from ${this.logRef}`
-
-    log.group(this.mixinWindowResizeListener_groupTitle);
+    log.group(`mixinWindowResizeListener called from ${this.logRef}`);
     
-    // check for config object
-    if(!this.mixinWindowResizeListener) {
-      return log.warn(`make sure to set a ${mixinName} data object`);
-    }
-
     // set event listener
     log.task('set event listener');
     window.addEventListener(
@@ -62,11 +43,14 @@ export const mixinWindowResizeListener = {
   },
 
   methods: {
+    mixinWindowResizeListener_onResize() {
+      log.group(`mixinWindowResizeListener called from ${this.logRef}`);
+      log.warn('Set mixinWindowResizeListener_onResize method on importing component to define resize behaviour')
+      log.line(`resize: ${window.innerWidth} x ${window.innerHeight}`);
+      log.groupEnd()
+    },
     mixinWindowResizeListener_setDimensions: debounce(function() {
-      this.mixinWindowResizeListener.onResize(
-        window.innerWidth,
-        window.innerHeight
-      );
+      this.mixinWindowResizeListener_onResize();
     }, 500) 
   }
 

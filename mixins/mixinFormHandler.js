@@ -1,43 +1,52 @@
-/********************
+/* 
 
-Mixin can be configured using a mixinFormHandler data object
+## Configurable Props ##
+NOTE THAT ALL CONFIGURABLE PROPS SHOULD BE COMPUTED
 
-{
-  formKey: key for the form and validation objects. Defaults to 'form'. 
+_formName
+  Used in serialized form data and available in markup. Defaults to 'form'
 
-  formName: name for the form - submitted with form data. Should be set in created hook of importing component if not directly on config object. Defaults to 'form'.
+_formFields
+  Array of plain field objects used to create augmented fields. All field objects should specify at least a label
+
+_serializedFormData
+  Encoded string to send on form submission. Defaults to key-value pairs derived from mixinFormHandler_form. 
+
+_formConstent
+  Should return a boolean indicating whether consent is required before the form can post 
+
+
+## Readable Props ##
+
+_form
+$v.mixinFormHandler_form
+  Form/validation objects derived from augmented form fields
+
+_augmentedFormFields#
+  Mapped _formFields with additional props for use in markup
+
+_formFieldErrors
+  Object containing an array of errors for each augmented field. Fields are keyed by .name
+
+_isPosting
+_hasAttemptedPost
+_hasSuccessfulPost
+  Boolean values set during mixinFormHandler_postForm
+
+_canSubmit
+  Boolean indicating form validity
   
-  formConsent: will add a 'formConsent' prop to form and validation object if set to true. 
 
-  formFields: array of fields to construct validation object. Set in created hook of importing component.
-  
-  serializedFormDataSource: prop name for serialized data source, if different from mixinFormHandler_serializedFormData
-}
+## Methods ##
 
-// METHODS
-mixinFormHandler_buildForm:
-Constructs a data object using supplied formFields. formKey is used as the prop name. The corresponding validation object is constructed automatically. Should be run in the created hook of the importing component after defining formFields
+_findAugmentedFields
+  Takes an array of plain fields and returns augmented fields. Useful if markup splits the form into sections
 
-mixinFormHandler_postForm:
-Posts the form using fetch and either mixinFormHandler_serializedFormData or the serializedFormDataSource if specified
+_postForm
+  Posts serialized form data using fetch. 
 
-// PROPERTIES
-Properties indicating post state:
-mixinFormHandler_isPosting
-mixinFormHandler_hasAttemptedPost
-mixinFormHandler_hasSuccessfulPost
 
-// COMPUTED PROPERTIES
-mixinFormHandler_canSubmit:
-Boolean indicating whether the form is valid
-
-mixinFormHandler_augmentedFields:
-An array of form fields augmented with additional props such as name, id, and field errors. Generated from supplied formFields
-
-mixinFormHandler_serializedFormData:
-Encoded string based on form object key-value pairs. Send with post action unless another source is specified with serializedFormDataSource
-
-********************/
+*/
 
 import * as Validators from 'vuelidate/lib/validators'
 import {validationMixin} from 'vuelidate'
@@ -53,15 +62,13 @@ const log = logger({
 const isEmpty = (val) => val === '';
 const isTrue = (val) => val === true;
 
-const mixinName = 'mixinFormHandler'
-
 export const mixinFormHandler = {
 
   mixins: [validationMixin],
 
   data() {
     return {
-      mixinFormHandler_groupTitle: null,
+      mixinFormHandler_form: {},
       mixinFormHandler_isPosting: false,
       mixinFormHandler_hasAttemptedPost:  false,
       mixinFormHandler_hasSuccessfulPost: false,
@@ -70,49 +77,46 @@ export const mixinFormHandler = {
 
   validations() {
     return {
-      [this.mixinFormHandler_getFormKey()]: this.mixinFormHandler_buildValidations()
+      mixinFormHandler_form: this.mixinFormHandler_buildValidations()
     }
   },
 
   computed: {
+
+    mixinFormHandler_formName() {
+      return 'form'
+    },
+
+    mixinFormHandler_formFields() {
+      return []
+    },
+
     mixinFormHandler_canSubmit() {
       return (
-        !this.$v[this.mixinFormHandler_getFormKey()].$invalid
+        !this.$v.mixinFormHandler_form.$invalid
         && !this.mixinFormHandler_isPosting
         && !this.mixinFormHandler_hasSuccessfulPost
       );
     },
-
-    mixinFormHandler_augmentedFields() {
-      const formModel = this.$v[this.mixinFormHandler_getFormKey()];
-      const fields = this[mixinName].formFields ? 
-      this[mixinName].formFields : [];
-      return fields.map((field, index) => {
-        
+    
+    mixinFormHandler_augmentedFormFields() {
+      
+      if(!this.mixinFormHandler_formFields || !this.mixinFormHandler_formFields.length) {
+        return []
+      }
+      const validFields = this.mixinFormHandler_formFields.filter(field => field.label);
+      return validFields.map((field, index) => {  
         // cased field references
         const camelCaseLabel = this.$toolkit.camelCase(field.label);
         const kebabCaseLabel = this.$toolkit.kebabCase(field.label);
-        
         // default value
-        let defaultVal = field.default_value;
-        if(field.options) {
-          const defaultOption = field.options.find(option => option.default) || field.options[0]
-          defaultVal = defaultOption.label
+        let defaultVal = field.default_value || '';
+        if(field.options && !field.default_value) {
+          defaultVal = field.options[0].label
         }
-
         // required field
         const isRequired = field.validations ? field.validations.find(item => item.validation === 'required') : false;
-
-        // field errors
-        const fieldErrors = [];
-        if(field.validations) {
-          field.validations.forEach(rule => {
-            if(!formModel[camelCaseLabel][rule.validation] && formModel[camelCaseLabel].$dirty) {
-              fieldErrors.push(rule.message || 'Error in field')
-            }
-          })
-        }
-
+        // augmented field
         return {
           ...field,
           key: `${kebabCaseLabel}-field-${index}`,
@@ -120,103 +124,109 @@ export const mixinFormHandler = {
           name: camelCaseLabel,
           defaultVal,
           isRequired,
-          fieldErrors,
-          hasFieldErrors: fieldErrors.length
-        }
-      });
+        }        
+      })
     },
 
-    mixinFormHandler_serializedFormData() {
-       const formName = this[mixinName].formName || 'form'
-       const serializedFormName = `form-name=${encodeURIComponent(formName)}`;
-       const formData = this[this.mixinFormHandler_getFormKey()];
-       const serializedFieldArray = [];
-       this.mixinFormHandler_augmentedFields.forEach(field => {
-         serializedFieldArray.push(`${encodeURIComponent(field.label)}=${encodeURIComponent(formData[field.name])}`)
-       });
-       const serializedFieldString = serializedFieldArray.join('&');
-       const serializedForm = `${serializedFormName}&${serializedFieldString}`;
-       return serializedForm.replace(/%20/g, '+');
-    },
-
-  },
-  mounted() {
-    this.mixinFormHandler_groupTitle = `${mixinName} called from ${this.logRef}`;
-    log.group(this.mixinFormHandler_groupTitle);
-    if(!this[mixinName]) {
-      return log.warn(`make sure to set a ${mixinName} data object`)
-    }
-    log.groupEnd();
-  },
-  methods: {
-    mixinFormHandler_getFormKey() {
-      return this[mixinName].formKey || 'form';
-    },
-    mixinFormHandler_buildForm() {
-      this.mixinFormHandler_augmentedFields.forEach(field => {
-        this.$set(
-          this[this.mixinFormHandler_getFormKey()],
-          field.name,
-          field.defaultVal ? field.defaultVal : ''
-        );
-      });
-      // add honeypot field reference
-      this.$set(
-        this[this.mixinFormHandler_getFormKey()],
-        'honeypot',
-        '',
-      );
-      // add form consent reference
-      if(this[mixinName].formConsent) {
-        this.$set(
-          this[this.mixinFormHandler_getFormKey()],
-          'formConsent',
-          false,
-        )
-      }
-    },
-    mixinFormHandler_buildValidations() {
-      const validationObj = {};
-      const fields = this[mixinName].formFields ? 
-        this[mixinName].formFields : []
-      fields.forEach(field => {
-        const fieldRef = this.$toolkit.camelCase(field.label);
-        const fieldRules = {};
-        if(!this.$toolkit.isEmpty(field.validations)) {
-          field.validations.forEach(item => {
-            if(Validators[item.validation]) {
-              fieldRules[item.validation] = item.params ? 
-              Validators[item.validation](item.params)
-              : Validators[item.validation]
+    mixinFormHandler_formFieldErrors() {
+      const errorObj = {}
+      this.mixinFormHandler_augmentedFormFields.forEach(field => {
+        const fieldErrors = [];
+        if(field.validations && field.validations.length) {
+          field.validations.forEach(rule => {
+            if(!this.$v.mixinFormHandler_form[field.name][rule.validation] && this.$v.mixinFormHandler_form[field.name].$dirty) {
+              fieldErrors.push(rule.message || 'Error in field');
             }
           })
         }
-        validationObj[fieldRef] = fieldRules;
+        errorObj[field.name] = fieldErrors; 
       })
-      // add honeypot field validation
+      return errorObj;
+    },
+
+    mixinFormHandler_serializedFormData() {
+      const serializedFormName = `form-name=${encodeURIComponent(this.mixinFormHandler_formName)}`;
+      const formData = this[this.mixinFormHandler_getFormKey()];
+      const serializedFieldArray = [];
+      this.mixinFormHandler_augmentedFields.forEach(field => {
+        serializedFieldArray.push(`${encodeURIComponent(field.label)}=${encodeURIComponent(formData[field.name])}`)
+      });
+      const serializedFieldString = serializedFieldArray.join('&');
+      const serializedForm = `${serializedFormName}&${serializedFieldString}`;
+      return serializedForm.replace(/%20/g, '+');
+    },
+
+  },
+
+  mounted() {
+    log.group(`mixinFormHandler called by ${this.logRef}`);
+    log.task(`building form object`);
+    this.mixinFormHandler_buildForm();
+    log.groupEnd();
+  },
+
+  methods: {
+
+    mixinFormHandler_buildForm() {
+      // build form from augmented fields
+      this.mixinFormHandler_augmentedFormFields.forEach(field => {
+        this.$set(
+          this.mixinFormHandler_form,
+          field.name,
+          field.defaultVal
+        );
+      });
+      // add honeypot field
+      this.$set(this.mixinFormHandler_form, 'honeypot', '');
+      // add form consent if applicable
+      this.$set(this.mixinFormHandler_form, 'formConsent', false);
+    },
+    
+    mixinFormHandler_buildValidations() {
+      const validationObj = {};
+      this.mixinFormHandler_augmentedFormFields.forEach(field => {
+        const fieldRules = {};
+        if(!this.$toolkit.isEmpty(field.validations)) {
+          field.validations.forEach(rule => {
+            if(Validators[rule.validation]) {
+              fieldRules[rule.validation] = rule.params ? 
+                Validators[rule.validation](rule.params)
+                : Validators[rule.validation]
+            }
+          })
+        }
+        validationObj[field.name] = fieldRules;
+      })
+      // add honeypot validation
       validationObj.honeypot = {isEmpty};
-      // add form consent
-      if(this[mixinName].formConsent) {
+      // add form consent validation if needed
+      if(this.mixinFormHandler_formConsent) {
         validationObj.formConsent = {isTrue};
       }
       return validationObj;
     },
+
+    mixinFormHandler_findAugmentedFields(targetFields = []) {
+      return this.mixinFormHandler_augmentedFormFields.filter(augmentedField => {
+        const labels = targetFields.map(
+          targetField => targetField.label || ''
+        );
+        return labels.includes(augmentedField.label);
+      })
+    },
+
     async mixinFormHandler_postForm() {
-      log.group(this.mixinFormHandler_groupTitle)
+      log.group(`mixinFormHandler called from ${this.logRef}`)
       try {
-        const dataSource = this[mixinName].serializedFormDataSource ? 
-          this[mixinName].serializedFormDataSource 
-          : 'mixinFormData_serializedFormData';
-        const postBody = this[dataSource];
         log.await('posting form');
         log.break();
-        log.line(postBody);
+        log.line(this.mixinFormHandler_serializedFormData);
         log.break();
         this.mixinFormHandler_isPosting = true;
         await fetch('/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: postBody
+          body: this.mixinFormHandler_serializedFormData
         })
         this.mixinFormHandler_hasSuccessfulPost = true;
         log.complete('form sent')
@@ -226,10 +236,10 @@ export const mixinFormHandler = {
         setTimeout(() => {
           this.mixinFormHandler_hasAttemptedPost = true;
           this.mixinFormHandler_isPosting = false;
-        }, Timeouts.OneSecond)
+        }, Timeouts.TwoSeconds)
       }
       log.groupEnd();
     }
-  }
+  },
 
 }

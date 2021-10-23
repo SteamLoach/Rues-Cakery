@@ -57,9 +57,6 @@ export default {
           to: 'https://www.instagram.com/ruescakery/'
         }
       ],
-      mixinWindowResizeListener: {
-        onResize: this.handleWindowResize,
-      }
     }
   },
 
@@ -71,9 +68,9 @@ export default {
   },
 
   methods: {
-    handleWindowResize(width, height) {
-      this[MutationNames.UpdateWindowWidth](width);
-      this[MutationNames.UpdateWindowHeight](height);
+    mixinWindowResizeListener_onResize() {
+      this[MutationNames.UpdateWindowWidth](window.innerWidth);
+      this[MutationNames.UpdateWindowHeight](window.innerHeight);
     },
     ...mapMutations([
       MutationNames.UpdateWindowWidth,

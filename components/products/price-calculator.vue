@@ -10,18 +10,18 @@
     <form 
       class="inner"
       data-netlify="true"
-      :name="formName"
-      :aria-label="formName"
+      :name="mixinFormHandler_formName"
+      :aria-label="mixinFormHandler_formName"
       data-netlify-honeypot="bot-field"
       method="post"
       target="hidden-iframe">
       <!-- Netlify Form Name Prop -->
-      <input type="hidden" name="form-name" :value="formName" >
+      <input type="hidden" name="form-name" :value="mixinFormHandler_formName" >
       <!-- End Netlify Form Name Prop -->
       <!-- Bot Field -->
       <input 
         id="paranoidandroid"
-        v-model="$v.form.honeypot.$model"
+        v-model="$v.mixinFormHandler_form.honeypot.$model"
         name="bot-field"
         type="text"
         placeholder="sneaky sneaky"
@@ -30,27 +30,32 @@
       <section class="options">
         <h2>Options</h2>
         <div class="form-fields">
-          <component 
-            :is="'form-field-select'"
-            v-for="field in product_details.customization_options"
-            :key="getAugmentedField(field).key"
-            v-model="$v.form[getAugmentedField(field).name].$model"
-            :content="getAugmentedField(field)">
+          <component
+            :is="field.component"
+            v-for="field in customizationOptionFields"
+            :key="field.key"
+            v-model="$v.mixinFormHandler_form[field.name].$model"
+            :content="field"
+            :field-errors="mixinFormHandler_formFieldErrors[field.name]">
           </component>
-          <storyblok-forms-form-field-textarea 
-            v-for="field in product_details.text_option"
-            :key="getAugmentedField(field).key"
-            v-model="$v.form[getAugmentedField(field).name].$model"
-            :content="getAugmentedField(field)">
-          </storyblok-forms-form-field-textarea>
-          <storyblok-forms-form-field-date-picker 
-            v-for="field in product_details.date_option"
-            :key="getAugmentedField(field).key"
-            v-model="$v.form[getAugmentedField(field).name].$model"
-            :content="getAugmentedField(field)"
+          <component
+            :is="field.component"
+            v-for="field in textOptionFields"
+            :key="field.key"
+            v-model="$v.mixinFormHandler_form[field.name].$model"
+            :content="field"
+            :field-errors="mixinFormHandler_formFieldErrors[field.name]">
+          </component>
+          <component
+            :is="field.component"
+            v-for="field in dateOptionFields"
+            :key="field.key"
+            v-model="$v.mixinFormHandler_form[field.name].$model"
+            :content="field"
             :min-date="earliestAvailableDate"
-            :disabled-dates="disabledDates">
-          </storyblok-forms-form-field-date-picker>
+            :disabled-dates="[]"
+            :field-errors="mixinFormHandler_formFieldErrors[field.name]">
+          </component>
         </div>
       </section>
       <section class="pricing">
@@ -90,29 +95,41 @@
         </div>
       </section>
       <section class="order-notes">
-        <storyblok-forms-form-field-textarea
-          v-for="field in product_details.order_notes"
-          :key="getAugmentedField(field).key"
-          v-model="$v.form[getAugmentedField(field).name].$model"
-          :content="getAugmentedField(field)">
-        </storyblok-forms-form-field-textarea>
+        <component
+          :is="field.component"
+          v-for="field in orderNoteFields"
+          :key="field.key"
+          v-model="$v.mixinFormHandler_form[field.name].$model"
+          :content="field"
+          :field-errors="mixinFormHandler_formFieldErrors[field.name]">
+        </component>
       </section>
       <section class="contact-details">
-        <storyblok-forms-form-field-input
-          v-for="field in product_details.contact_details"
-          :key="getAugmentedField(field).key"
-          v-model="$v.form[getAugmentedField(field).name].$model"
-          :content="getAugmentedField(field)">
-        </storyblok-forms-form-field-input>
-        <!--
-          Form consent validation is handled in form and validation by the 'formConsent' prop. Augmented field is only used to generate props for checkbox component and isn't bound to a data model. 
-         -->
-        <storyblok-forms-form-field-checkbox
-          v-for="field in product_details.form_consent"
-          :key="getAugmentedField(field).key"
-          v-model="$v.form.formConsent.$model"
-          :content="getAugmentedField(field)">
-        </storyblok-forms-form-field-checkbox>
+        <component
+          :is="field.component"
+          v-for="field in contactDetailFields"
+          :key="field.key"
+          v-model="$v.mixinFormHandler_form[field.name].$model"
+          :content="field"
+          :field-errors="mixinFormHandler_formFieldErrors[field.name]">
+        </component>
+        <div 
+          v-if="mixinFormHandler_formConsent"
+          class="form-consent">
+          <utils-form-field>
+            <p id="form-consent-description">
+              {{product_details.form_consent.description}}
+            </p>
+            <input
+              id="form-consent"
+              v-model="$v.mixinFormHandler_form.formConsent.$model"
+              type="checkbox"
+              aria-describedby="form-consent-description">
+            <label for="form-consent">
+              {{product_details.form_consent.checkbox_label}}
+            </label>
+          </utils-form-field>
+        </div>
       </section>
       <section class="form-controls">
         <storyblok-utils-ui-button
@@ -129,7 +146,7 @@
           :has-successful-post="mixinFormHandler_hasSuccessfulPost">
         </utils-form-post-state>
       </section>
-    </form>
+    </form>    
   </section>
 </template>
 
@@ -143,24 +160,9 @@ export default {
 
   mixins: [mixinFormHandler],
 
-  /*
-  props: {
-    content: {
-      type: Object,
-      default: () => {}
-    }
-  }
-  */
   data() {
     return {
       logRef: '<price-calculator>',
-      mixinFormHandler: {
-        formFields: [],
-        formConsent: true,
-        formName: 'Enquiry Form',
-        serializedFormDataSource: 'serializedFormData',
-      },
-      form: {},
       product_details: {
         product_type: 'Cheesecake',
         base_price: 50,
@@ -168,6 +170,7 @@ export default {
         customization_options: CAKE_OPTIONS,
         text_option: [
             {
+              component: 'form-field-textarea',
               label: 'Add writing',
               rows: 3,
               price_modifier: 3,
@@ -183,6 +186,7 @@ export default {
         ],
         date_option: [
           {
+            component: 'form-field-date-picker',
             label: 'Pickup date',
             placeholder: "Please select a date",
             validations: [
@@ -195,6 +199,7 @@ export default {
         ],
         order_notes: [
           {
+            component: 'form-field-textarea',
             label: 'Order notes',
             rows: 5,
             placeholder: 'Please add any other information that might be useful',
@@ -209,6 +214,7 @@ export default {
         ],
         contact_details: [
           {
+            component: 'form-field-input',
             label: 'Your Name',
             type: 'text',
             placeholder: 'Please enter your name',
@@ -226,6 +232,7 @@ export default {
             class_extensions: ['is-half-width']
           },
           {
+            component: 'form-field-input',
             label: 'Your Email',
             type: 'email',
             placeholder: 'Please enter your email',
@@ -247,11 +254,11 @@ export default {
             class_extensions: ['is-half-width']
           }
         ],
-        form_consent: [
-          {
-            label: "I agree to this information being used solely to contact me about my enquiry"
-          }
-        ],
+        form_consent: {
+          is_required: true,
+          description: "We use the details your provide for the sole purpose of responding to your enquiry.",
+          checkbox_label: "I'm happy for you to use my details to contact me about my enquiry",
+        },
         form_submit: {
           button_text: 'Send Enquiry',
           sending_message: 'Sending...',
@@ -261,28 +268,52 @@ export default {
       }      
     }
  },
+
  computed: {
-   disabledDates() {
-     return [
-       {
-         start: new Date("2021-11-10 00:00"),
-         end: new Date("2021-11-20 00:00")
-       },
-       {
-         start: new Date("2021-12-22 00:00"),
-         end: new Date("2021-12-26 00:00")
-       }
-     ]
-   },
-   formName() {
+
+   /** mixinFormHandler config **/
+   mixinFormHandler_formName() {
      return `${this.product_details.product_type} Enquiry Form`
    },
-   priceMap() {
+   mixinFormHandler_formFields() {
+     return [
+       ...this.product_details.customization_options,
+       ...this.product_details.text_option,
+       ...this.product_details.date_option,
+       ...this.product_details.order_notes,
+       ...this.product_details.contact_details,
+     ]
+   },
+   mixinFormHandler_formConsent() {
+     return this.product_details.form_consent.is_required
+   },
+
+   /** Mapped augmented fields **/
+   customizationOptionFields() {
+     return this.mixinFormHandler_findAugmentedFields(this.product_details.customization_options);
+   },
+   textOptionFields() {
+     return this.mixinFormHandler_findAugmentedFields(this.product_details.text_option);
+   },
+   dateOptionFields() {
+     return this.mixinFormHandler_findAugmentedFields(this.product_details.date_option);
+   },
+   orderNoteFields() {
+     return this.mixinFormHandler_findAugmentedFields(this.product_details.order_notes);
+   },
+   contactDetailFields() {
+     return this.mixinFormHandler_findAugmentedFields(this.product_details.contact_details);
+   },
+
+  /** Pricing **/
+  priceMap() {
     const priceMap = [];
-    this.product_details.customization_options.forEach(field => {
-      const augmentedField = this.getAugmentedField(field);
-      const formValue = this.form[augmentedField.name];
-      const priceModifier = field.options.find(option => option.label === formValue).value; 
+    this.customizationOptionFields.forEach(field => {
+      const formValue = this.mixinFormHandler_form[field.name];      
+      if(!formValue) {return;}
+      const priceModifier = field.options.find(
+        option => option.label === formValue
+      ).value; 
       priceMap.push({
         label: field.label,
         value: formValue,
@@ -291,8 +322,8 @@ export default {
         priceModifier,
       })
     })
-    this.product_details.text_option.forEach(field => {
-      const formValue = this.form[this.getAugmentedField(field).name];
+    this.textOptionFields.forEach(field => {
+      const formValue = this.mixinFormHandler_form[field.name];
       priceMap.push({
         label: field.label,
         value: formValue ? 'Yes' : '',
@@ -301,8 +332,8 @@ export default {
         priceModifier: formValue ? field.price_modifier : 0,
       })
     })
-    this.product_details.date_option.forEach(field => {
-      const formValue = this.form[this.getAugmentedField(field).name];
+    this.dateOptionFields.forEach(field => {
+      const formValue = this.mixinFormHandler_form[field.name];
       const formattedFormValue = this.$dayjs(formValue).format('ddd DD MMMM YYYY')
         priceMap.push({
           label: field.label,
@@ -323,9 +354,11 @@ export default {
      const date = new Date();
      return date.setDate(date.getDate() + 7);
    },
-   serializedFormData() {
+
+   /** Serialised Form Data **/
+   mixinFormHandler_serializedFormData() {
      // define form name
-     const serializedFormName = `form-name=${encodeURIComponent(this.formName)}`;
+     const serializedFormName = `form-name=${encodeURIComponent(this.mixinFormHandler_formName)}`;
      // handle pricemap entries
      const formData = [];
      this.priceMap.forEach(entry => {
@@ -335,12 +368,11 @@ export default {
      });
      // handle additional fields
      [
-       ...this.product_details.order_notes,
-       ...this.product_details.contact_details,
+       ...this.orderNoteFields,
+       ...this.contactDetailFields,
      ].forEach(field => {
-       const augmentedField = this.getAugmentedField(field);
        const fieldLabel = encodeURIComponent(field.label);
-       const fieldString = encodeURIComponent(this.form[augmentedField.name]);
+       const fieldString = encodeURIComponent(this.mixinFormHandler_form[field.name]);
        formData.push(`${fieldLabel}=${fieldString}`);
      })
      // handle total price
@@ -352,24 +384,9 @@ export default {
      return serializedForm.replace(/%20/g, '+');
    }
  },
- created() {
-   this.mixinFormHandler.formFields = [
-     ...this.product_details.customization_options,
-     ...this.product_details.text_option,
-     ...this.product_details.date_option,
-     ...this.product_details.order_notes,
-     ...this.product_details.contact_details,
-     ...this.product_details.form_consent,
-   ];
-   this.mixinFormHandler.formName = this.formName;
-   this.mixinFormHandler_buildForm();
- },
- methods: {
-    getAugmentedField(field) {
-      // necessary as we need more control over where fields are rendered instead of rendering a list based on augmented fields only
-      return this.mixinFormHandler_augmentedFields.find(augmentedField => field.label === augmentedField.label);
-    }
-  },
+
+
+
 }
 </script>
 
@@ -501,8 +518,15 @@ export default {
     }
 
     .contact-details {
-      @include row(between, center);
+      @include row(center, center);
       margin-bottom: $space-4;
+    }
+
+    .form-consent {
+      font-size: $text-small;
+      p {
+        margin-bottom: $space-2;
+      }
     }
 
     .form-controls {

@@ -21,13 +21,17 @@ export default {
   props: {
     content: {
       type: Object,
-      required: true,
+      default: () => ({}),
+    },
+    fieldErrors: {
+      type: Array,
+      default: () => []
     }
   },
 
   computed: {
     currentError() {
-      return this.content.fieldErrors[0]
+      return this.fieldErrors[0]
     }
   }
 

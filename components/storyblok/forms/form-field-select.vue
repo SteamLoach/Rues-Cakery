@@ -1,5 +1,7 @@
 <template>
-    <utils-form-field :content="content">
+    <utils-form-field 
+      :content="content"
+      :field-errors="fieldErrors">
     <label :for="content.id">
       {{content.label}}
       <sup class="required">
@@ -10,7 +12,7 @@
       :id="content.id"
       :name="content.id"
       :value="value"
-      :class="{'has-field-errors': content.hasFieldErrors}"
+      :class="{'has-field-errors': fieldErrors.length}"
       @input="onInput">
       <option 
         v-for="option in content.options"
@@ -32,6 +34,10 @@ export default {
       type: Object,
       default: () => {}
     },
+    fieldErrors: {
+      type: Array,
+      default: () => [],
+    }
   },
   methods: {
     onInput(e) {

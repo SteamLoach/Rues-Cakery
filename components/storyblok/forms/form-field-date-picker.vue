@@ -1,7 +1,9 @@
 <template>
   <!-- client only as v-date-picker references document -->
   <client-only>
-    <utils-form-field :content="content">
+    <utils-form-field 
+      :content="content"
+      :field-errors="fieldErrors">
       <label :for="content.id">
         {{content.label}}
         <sup class="required">
@@ -20,7 +22,7 @@
         <template #default="{togglePopover}">
           <div 
             class="input-wrapper"
-            :class="{'has-field-errors': content.hasFieldErrors}">
+            :class="{'has-field-errors': fieldErrors.length}">
             <button
               class="calendar-button"
               title="Toggle date picker"
@@ -62,13 +64,17 @@
 export default {
 
   props: {
+    value: {
+     type: [String, Number, Date],
+     default: '',
+    },
     content: {
       type: Object,
       required: true,
     },
-    value: {
-     type: [String, Number, Date],
-      required: true,
+    fieldErrors: {
+      type: Array,
+      default: () => [],
     },
     minDate: {
       type: [String, Number],

@@ -1,5 +1,7 @@
 <template>
-  <utils-form-field :content="content">
+  <utils-form-field 
+    :content="content"
+    :field-errors="fieldErrors">
     <label :for="content.id">
       {{content.label}}
       <sup class="required">
@@ -8,7 +10,7 @@
     </label>
     <input
       :id="content.id"
-      :class="{'has-field-errors': content.hasFieldErrors}"
+      :class="{'has-field-errors': fieldErrors.length}"
       :name="content.id"
       :type="content.type"
       :maxlength="maxLength"
@@ -28,6 +30,10 @@ export default {
       type: Object,
       default: () => {}
     },
+    fieldErrors: {
+      type: Array,
+      default: () => [],
+    }
   },
   computed: {
     maxLength() {

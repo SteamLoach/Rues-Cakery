@@ -1,5 +1,6 @@
 export const CAKE_OPTIONS = [
   {
+    component: 'form-field-select',
     label: 'Size',
     options: [
       {
@@ -21,6 +22,7 @@ export const CAKE_OPTIONS = [
     ]
   },
   {
+    component: 'form-field-select',
     label: 'Flavour',
     options: [
       {
@@ -57,6 +59,7 @@ export const CAKE_OPTIONS = [
     ]
   },
   {
+    component: 'form-field-select',
     label: 'Icing',
     options: [
       {
@@ -88,6 +91,7 @@ export const CAKE_OPTIONS = [
     ]
   },
   {
+    component: 'form-field-select',
     label: 'Filling',
     options: [
       {
