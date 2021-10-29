@@ -1,20 +1,28 @@
 <template>
   <div class="page-wrapper">
-    <products-product-header >
-
-    </products-product-header>
+    <product-header></product-header>
     <main>
-      <products-price-calculator>
-
-      </products-price-calculator>
+      <enquiry-form></enquiry-form>
     </main> 
   </div>
 </template>
 
 <script>
+
+import {mixinStoryblokBridge} from '@/mixins/mixinStoryblokBridge'
+
 export default {
 
+  mixins: [mixinStoryblokBridge],
+  
+  data() {
+    return {
+      
+    }
+  }
+
 }
+
 </script>
 
 <style lang="scss" scoped>

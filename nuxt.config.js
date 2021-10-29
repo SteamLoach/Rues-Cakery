@@ -1,8 +1,14 @@
-const STORYBLOK_CONTENT_VERSION_IS_DRAFT = process.env.STORYBLOK_CONTENT_VERSION === 'draft'
 
 export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
+
+  // Env
+  publicRuntimeConfig: {
+    STORYBLOK_TOKEN: process.env.STORYBLOK_TOKEN, 
+    STORYBLOK_CONTENT_VERSION: process.env.STORYBLOK_PUBLISHED_CONTENT ? 'published' : 'draft'
+  },
+
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -15,7 +21,7 @@ export default {
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: '' },
       { name: 'format-detection', content: 'telephone=no' },
-      STORYBLOK_CONTENT_VERSION_IS_DRAFT ? {name: 'robots', content: 'noindex,nofollow'} : {},
+      process.env.STORYBLOK_PUBLISHED_CONTENT ? {} : {name: 'robots', content: 'noindex,nofollow'},
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
@@ -60,13 +66,22 @@ export default {
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     '@nuxtjs/style-resources',
-    '@nuxtjs/dayjs'
+    '@nuxtjs/dayjs',
+    'nuxt-interpolation',
+    [
+      'storyblok-nuxt',
+      {
+        accessToken: process.env.STORYBLOK_TOKEN,
+        cacheProvider: 'memory'
+      }
+    ],
   ],
   styleResources: {
     scss: [
       '@/assets/scss/index.scss'
     ]
   },
+
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {},

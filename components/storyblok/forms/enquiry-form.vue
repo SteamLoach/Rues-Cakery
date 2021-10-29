@@ -158,7 +158,9 @@ import {CAKE_OPTIONS} from '@/placeholder-data/cake-options'
 
 export default {
 
-  mixins: [mixinFormHandler],
+  mixins: [
+    mixinFormHandler
+  ],
 
   data() {
     return {

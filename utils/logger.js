@@ -1,6 +1,4 @@
 /* eslint-disable */
-import { ENABLE_LOGGER } from "@/constants/app-variables";
-
 const getGroupTitleStyle =(backgroundColor, color) => {
   return `background-color: ${backgroundColor}; color: ${color}`
 }
@@ -9,18 +7,23 @@ const colorMap = [
   {
     match: 'MIXIN',
     backgroundColor: '#ff96f8',
+  },
+  {
+    match: 'STORYBLOK',
+    color: '#fff',
+    backgroundColor: '#089B97'
   }
 ]
 
 export const logger = ({
   title = 'GENERIC',
   time = true,
-  mute= false,
+  mute = false,
   backgroundColor = 'none',
   color = '#000',
 }) => {
 
-  const showLogs = ENABLE_LOGGER && !mute;
+  const showLogs = process.env.ENABLE_LOGGER && !mute;
 
   const logger = {
 
@@ -37,14 +40,14 @@ export const logger = ({
         );
         if(mappedColor) {
           this.groupBackgroundColor = mappedColor.backgroundColor;
-          this.groupColor = color || mappedColor.color
+          this.groupColor = mappedColor.color || color
         }
         this.groupTitle = groupTitle;
         console.group('%c %s', getGroupTitleStyle(this.groupBackgroundColor, this.groupColor), ` ${this.logTitle} | ${this.groupTitle} `
         );
         if(time) {
           this.groupTimestamp = new Date().getTime();
-          console.time(`[${this.groupTimestamp}] ${this.groupTitle} completed in`)
+          console.time(`⌚ [${this.groupTimestamp}] completed in`)
         }
       }
     },
@@ -53,7 +56,7 @@ export const logger = ({
       if(showLogs) {
         console.groupEnd();
         if(time) {
-          console.timeEnd(`[${this.groupTimestamp}] ${this.groupTitle} completed in`)
+          console.timeEnd(`⌚ [${this.groupTimestamp}] completed in`)
         }
       }
     },
