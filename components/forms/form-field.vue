@@ -5,6 +5,7 @@
     <slot />
     <slide-x-left-transition mode="out-in">
       <p 
+        v-if="showFeedback"
         :key="currentError"
         class="feedback">
         {{currentError}}
@@ -22,6 +23,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    showFeedback: {
+      type: Boolean,
+      default: true,
+    }
   },
 
   computed: {

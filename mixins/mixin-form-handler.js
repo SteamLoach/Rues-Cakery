@@ -6,7 +6,7 @@ NOTE THAT ALL CONFIGURABLE PROPS SHOULD BE COMPUTED
 _formName
   Used in serialized form data and available in markup. Defaults to 'form'
 
-_formFields
+_formSchema
   Array of plain field objects used to create augmented fields. All field objects should specify at least a label
 
 _serializedFormData
@@ -22,11 +22,8 @@ _form
 $v.mixinFormHandler_form
   Form/validation objects derived from augmented form fields
 
-_augmentedFormFields
-  Mapped _formFields with additional props for use in markup
-
-_formFieldErrors
-  Object containing an array of errors for each augmented field. Fields are keyed by .name
+_formFields
+  Field array with additional props/validation state for use in markup
 
 _isPosting
 _hasAttemptedPost
@@ -39,7 +36,7 @@ _canSubmit
 
 ## Methods ##
 
-_findAugmentedFields
+_findFormFields
   Takes an array of plain fields and returns augmented fields. Useful if markup splits the form into sections
 
 _postForm
@@ -52,7 +49,7 @@ import * as Validators from 'vuelidate/lib/validators'
 import {validationMixin} from 'vuelidate'
 
 import {logger} from '@/utils/logger'
-import {Timeouts} from '@/constants/timeouts'
+import {Timeouts} from '~/constants/timeouts'
 
 const log = logger({
   title: "Mixin",
@@ -61,6 +58,10 @@ const log = logger({
 
 const isEmpty = (val) => val === '';
 const isTrue = (val) => val === true;
+
+const RULES_WITH_PARAMS = [
+  'maxLength'
+]
 
 export const mixinFormHandler = {
 
@@ -255,7 +256,9 @@ export const mixinFormHandler = {
       // add honeypot field
       this.$set(this.mixinFormHandler_form, 'honeypot', '');
       // add form consent if applicable
-      this.$set(this.mixinFormHandler_form, 'formConsent', false);
+      if(this.mixinFormHandler_formConsent) {
+        this.$set(this.mixinFormHandler_form, 'formConsent', false);
+      }
     },
     
     $_mixinFormHandler_buildValidations() {
@@ -264,10 +267,11 @@ export const mixinFormHandler = {
         const fieldRules = {};
         if(!this.$toolkit.isEmpty(field.validations)) {
           field.validations.forEach(rule => {
-            if(Validators[rule.validation]) {
-              fieldRules[rule.validation] = rule.params ? 
-                Validators[rule.validation](rule.params)
-                : Validators[rule.validation]
+            if(!Validators[rule.validation]) return
+            if(RULES_WITH_PARAMS.includes(rule.validation)) {
+              fieldRules[rule.validation] = Validators[rule.validation](rule.params)
+            } else {
+              fieldRules[rule.validation] = Validators[rule.validation]
             }
           })
         }

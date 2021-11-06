@@ -1,17 +1,22 @@
 <template>
   <header class="product-header">
     <img 
-      :src="content.product_images[0].src"
+      :src="content.product_images[0].filename"
       class="feature-image">
-    <div class="description">
+    <div class="copy">
       <h1>{{content.product_title}}</h1>
-      <p>{{content.product_description}}</p>
-      <p>Not nut, gluten, or dairy free unless explicitly stated. Please contact for any special requests.</p>
-      <p>Please note that a minimum of 7 days notice is required. Availability is not gauranteed.</p>
+      <rich-text
+        class="product-description"
+        :content="content.product_description">
+      </rich-text>
+      <rich-text
+        class="service-disclaimer"
+        :content="serviceDisclaimer">
+      </rich-text>
       <div class="base-price">
         <sup class="from">from</sup>
         <sup class="currency">$</sup>
-        <span class="price">{{content.product_details.base_price}}</span>
+        <span class="price">{{basePrice}}</span>
       </div>
       <div class="customise-link">
         <storyblok-utils-ui-button
@@ -27,55 +32,34 @@
 </template>
 
 <script>
+
+import {mapGetters} from 'vuex'
+import {ModuleNames} from '@/constants/store'
+import {GetterNames as SettingsGetterNames} from '@/store/keys/settings-keys'
+
 export default {
-  /*
+
   props: {
     content: {
       type: Object,
       default: () => {}
+    },
+    basePrice: {
+      type: [String, Number],
+      required: true,
     }
   },
-  */
+
   data() {
-    return {
-      content: {
-        product_title: 'Cheesecake',
-        product_description: 'Cillum tempor magna duis dolor sit reprehenderit dolore enim ex cillum quis tempor elit aute. In culpa pariatur velit incididunt mollit. Labore non incididunt nulla irure ex tempor sint voluptate duis esse.',
-        product_images: [
-          {
-            src: "/placeholder-images/cheesecake-placeholder-portrait.jpg"
-          }
-        ],
-        product_details: {
-          base_price: 50,
-          customization_options: [
-            [
-              {
-                label: 'Size',
-                options: [
-                  {
-                    description: '12" (serves 6)',
-                    price_modifier: 0,
-                    default: true,
-                  },
-                  {
-                    description: '14" (serves 8)',
-                    price_modifier: 15,
-                    default: false,
-                  },
-                  {
-                    description: '16" (serves 10)',
-                    price_modifier: 20,
-                    default: false,
-                  }
-                ]
-              }
-            ]
-          ]
-        }
-      }
-    }
+    return {}
   },
+
+  computed: {
+    ...mapGetters(ModuleNames.Settings, {
+      serviceDisclaimer: SettingsGetterNames.ServiceDisclaimer
+    })
+  },
+
   methods: {
     scrollToOptions() {
       this.$toolkit.scrollPage({
@@ -101,7 +85,7 @@ export default {
   }
 
   .feature-image,
-  .description {
+  .copy {
     height: 100%;
     @include column-scale(
       $default: 24,
@@ -109,7 +93,7 @@ export default {
     );
   }
 
-  .description {
+  .copy {
     @include pad-scale(
       top,
       $on-tablet: $space-6,
@@ -129,6 +113,17 @@ export default {
       $default: $title-large,
       $on-tablet: 3.5rem,
     );
+  }
+
+  .product-description {
+    margin-bottom: $space-4;
+  }
+
+  .service-disclaimer {
+    padding: $space-3;
+    margin-bottom: $space-6;
+    border: 1px dashed $warning-base;
+    background: $warning-lightest;
   }
 
   p {

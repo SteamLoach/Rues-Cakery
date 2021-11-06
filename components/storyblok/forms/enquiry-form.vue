@@ -35,14 +35,16 @@
             v-for="field in customizationOptionFields"
             :key="field.key"
             v-model="$v.mixinFormHandler_form[field.name].$model"
-            :content="field">
+            :content="field"
+            v-editable="field">
           </component>
           <component
             :is="field.component"
             v-for="field in textOptionFields"
             :key="field.key"
             v-model="$v.mixinFormHandler_form[field.name].$model"
-            :content="field">
+            :content="field"
+            v-editable="field">
           </component>
           <component
             :is="field.component"
@@ -51,7 +53,8 @@
             v-model="$v.mixinFormHandler_form[field.name].$model"
             :content="field"
             :min-date="earliestAvailableDate"
-            :disabled-dates="blackoutDates">
+            :disabled-dates="blackoutDates"
+            v-editable="field">
           </component>
         </div>
       </section>
@@ -61,7 +64,7 @@
           <ul>
             <li>
               <b>Base Price:</b>
-              <span>${{product_details.base_price}}</span>
+              <span>${{content.base_price}}</span>
             </li>
             <template v-for="item in priceMap">
               <slide-x-right-transition 
@@ -80,9 +83,10 @@
           </ul>
         </div>
         <div class="estimate">
-          <p class="disclaimer">
-            {{product_details.price_disclaimer}}
-          </p>
+          <rich-text 
+            :content="content.price_disclaimer"
+            class="disclaimer">
+          </rich-text>
           <p class="total">
             <b>Estimate:</b>
             <slide-y-down-transition mode="out-in">
@@ -97,7 +101,8 @@
           v-for="field in orderNoteFields"
           :key="field.key"
           v-model="$v.mixinFormHandler_form[field.name].$model"
-          :content="field">
+          :content="field"
+          v-editable="field">
         </component>
       </section>
       <section class="contact-details">
@@ -106,36 +111,48 @@
           v-for="field in contactDetailFields"
           :key="field.key"
           v-model="$v.mixinFormHandler_form[field.name].$model"
-          :content="field">
+          class="is-half-width"
+          :content="field"
+          v-editable="field">
         </component>
         <div 
           v-if="mixinFormHandler_formConsent"
           class="form-consent">
-          <forms-form-field>
-            <p id="form-consent-description">
-              {{product_details.form_consent.description}}
-            </p>
+          <forms-form-field 
+            v-for="field in content.form_consent"
+            :key="field._uid"
+            :show-feedback="false"
+            v-editable="field">
+            <rich-text 
+              id="form-consent-description"
+              class="small-copy-size"
+              :content="field.description">
+            </rich-text>
             <input
               id="form-consent"
               v-model="$v.mixinFormHandler_form.formConsent.$model"
               type="checkbox"
               aria-describedby="form-consent-description">
             <label for="form-consent">
-              {{product_details.form_consent.checkbox_label}}
+              {{field.checkbox_label}}
             </label>
           </forms-form-field>
         </div>
       </section>
-      <section class="form-controls">
+      <section 
+        v-for="item in content.form_submit"
+        :key="item._uid"
+        class="form-controls"
+        v-editable="item">
         <storyblok-utils-ui-button
           class="is-wide has-hover-state"
           :disabled="!mixinFormHandler_canSubmit"
           :loading="true"
           @onClick="mixinFormHandler_postForm">
-            {{product_details.form_submit.button_text}}
+            {{item.button_text}}
         </storyblok-utils-ui-button>
         <forms-form-post-state
-          :content="product_details.form_submit"
+          :content="item"
           :is-posting="mixinFormHandler_isPosting"
           :has-attempted-post="mixinFormHandler_hasAttemptedPost"
           :has-successful-post="mixinFormHandler_hasSuccessfulPost">
@@ -149,124 +166,26 @@
 
 import {mapGetters} from 'vuex'
 import {ModuleNames} from '@/constants/store'
-import {GetterNames as SettingsGetterNames} from '@/store/keys/settingsKeys'
+import {GetterNames as SettingsGetterNames} from '~/store/keys/settings-keys'
 
-import {mixinFormHandler} from '@/mixins/mixinFormHandler'
-import {CAKE_OPTIONS} from '@/placeholder-data/cake-options'
+import {mixinFormHandler} from '~/mixins/mixin-form-handler'
 
-
-export default {
+export default { 
 
   mixins: [
     mixinFormHandler
   ],
 
+  props: {
+    content: {
+      type: Object,
+      required: true,
+    }
+  },
+
   data() {
     return {
-      logRef: '<price-calculator>',
-      product_details: {
-        product_type: 'Cheesecake',
-        base_price: 50,
-        price_disclaimer: "All prices are estimates only and are subject to change depending on exact requirements.",
-        customization_options: CAKE_OPTIONS,
-        text_option: [
-            {
-              component: 'form-field-textarea',
-              label: 'Add writing',
-              rows: 3,
-              price_modifier: 3,
-              placeholder: "Add writing (optional)",
-              validations: [
-                {
-                  validation: 'maxLength',
-                  params: 50,
-                  message: 'Max 150 characters'
-                }
-              ]
-          }
-        ],
-        date_option: [
-          {
-            component: 'form-field-date-picker',
-            label: 'Pickup date',
-            placeholder: "Please select a date",
-            validations: [
-              {
-                validation: 'required',
-                message: 'Please enter a pickup date. This can be changed later if needed'
-              }
-            ],
-          }
-        ],
-        order_notes: [
-          {
-            component: 'form-field-textarea',
-            label: 'Order notes',
-            rows: 5,
-            placeholder: 'Please add any other information that might be useful',
-            validations: [
-              {
-                validation: 'maxLength',
-                params: 300,
-                message: 'Max 300 characters'
-              }
-            ]
-          }
-        ],
-        contact_details: [
-          {
-            component: 'form-field-input',
-            label: 'Your Name',
-            type: 'text',
-            placeholder: 'Please enter your name',
-            validations: [
-              {
-                validation: 'required',
-                message: 'This field is required'
-              },
-              {
-                validation: 'maxLength',
-                params: 100,
-                message: 'Max 100 characters'
-              }
-            ],
-            class_extensions: ['is-half-width']
-          },
-          {
-            component: 'form-field-input',
-            label: 'Your Email',
-            type: 'email',
-            placeholder: 'Please enter your email',
-            validations: [
-              {
-                validation: 'required',
-                message: 'This field is required'
-              },
-              {
-                validation: 'maxLength',
-                params: 100,
-                message: 'Max 100 characters'
-              },
-              {
-                validation: 'email',
-                message: 'Please enter a valid email address'
-              }
-            ],
-            class_extensions: ['is-half-width']
-          }
-        ],
-        form_consent: {
-          is_required: true,
-          description: "We use the details your provide for the sole purpose of responding to your enquiry.",
-          checkbox_label: "I'm happy for you to use my details to contact me about my enquiry",
-        },
-        form_submit: {
-          button_text: 'Send Enquiry',
-          sending_message: 'Sending...',
-          success_message: 'Thanks for your enquiry!',
-          error_message: `Something went wrong, please try again`
-        }
-      }      
+      logRef: '<price-calculator>',     
     }
  },
 
@@ -274,36 +193,36 @@ export default {
 
    /** mixinFormHandler config **/
    mixinFormHandler_formName() {
-     return `${this.product_details.product_type} Enquiry Form`
+     return `${this.content.product_type} Enquiry Form`
    },
    mixinFormHandler_formSchema() {
      return [
-       ...this.product_details.customization_options,
-       ...this.product_details.text_option,
-       ...this.product_details.date_option,
-       ...this.product_details.order_notes,
-       ...this.product_details.contact_details,
+       ...this.content.customization_options,
+       ...this.content.add_writing_option,
+       ...this.content.date_option,
+       ...this.content.order_notes,
+       ...this.content.contact_details,
      ]
    },
    mixinFormHandler_formConsent() {
-     return this.product_details.form_consent.is_required
+     return this.content.form_consent.length
    },
 
    /** Mapped augmented fields **/
    customizationOptionFields() {
-     return this.mixinFormHandler_findFormFields(this.product_details.customization_options);
+     return this.mixinFormHandler_findFormFields(this.content.customization_options);
    },
    textOptionFields() {
-     return this.mixinFormHandler_findFormFields(this.product_details.text_option);
+     return this.mixinFormHandler_findFormFields(this.content.add_writing_option);
    },
    dateOptionFields() {
-     return this.mixinFormHandler_findFormFields(this.product_details.date_option);
+     return this.mixinFormHandler_findFormFields(this.content.date_option);
    },
    orderNoteFields() {
-     return this.mixinFormHandler_findFormFields(this.product_details.order_notes);
+     return this.mixinFormHandler_findFormFields(this.content.order_notes);
    },
    contactDetailFields() {
-     return this.mixinFormHandler_findFormFields(this.product_details.contact_details);
+     return this.mixinFormHandler_findFormFields(this.content.contact_details);
    },
 
   /** Pricing **/
@@ -319,7 +238,8 @@ export default {
         label: field.label,
         value: formValue,
         formValue,
-        priceModifierText: priceModifier ? `+ $${priceModifier}` : '-',
+        priceModifierText: parseFloat(priceModifier) ?
+           `+ $${priceModifier}` : '-',
         priceModifier,
       })
     })
@@ -347,9 +267,12 @@ export default {
     return priceMap;
    },
    totalPrice() {
-     let modifiers = 0;
-     this.priceMap.forEach(item => {modifiers += item.priceModifier});
-     return (this.product_details.base_price + modifiers).toFixed(2);
+    let modifiers = 0;
+    this.priceMap.forEach(item => {
+      modifiers += parseFloat(item.priceModifier)
+    });
+    const total = parseFloat(this.content.base_price) + modifiers
+    return total.toFixed(2);
    },
    earliestAvailableDate() {
      const date = new Date();
@@ -529,7 +452,11 @@ export default {
     }
 
     .form-consent {
+      padding: $space-3;
       font-size: $text-small;
+      border: 1px dashed $brand-dark;
+      background: $brand-lightest;
+
       p {
         margin-bottom: $space-2;
       }

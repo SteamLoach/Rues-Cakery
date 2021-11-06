@@ -1,10 +1,9 @@
 <template>
-
-  <section class="rich-text"
-           v-interpolation
-           v-html="resolvedText">
-  </section>
-
+  <div 
+    class="rich-text"
+    v-interpolation
+    v-html="resolvedText">
+  </div>
 </template>
 
 <script>
@@ -43,7 +42,7 @@ export default {
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 
   $major-headers: 'h1', 'h2', 'h3';
   $minor-headers: 'h4', 'h5', 'h6';

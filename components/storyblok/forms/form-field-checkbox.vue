@@ -1,5 +1,6 @@
 <template>
-  <forms-form-field :content="content">
+  <forms-form-field 
+    :content="content">
     <input
       :id="content.id"
       :name="content.id"

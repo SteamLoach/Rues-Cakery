@@ -1,10 +1,10 @@
-import { HANDHELD_WINDOW_WIDTH_BELOW } from '@/constants/dimensions';
+import { HANDHELD_WINDOW_WIDTH_BELOW } from '~/constants/dimensions';
 
 import {
   StoreKeys,
   MutationNames,
   GetterNames 
-} from '~/store/keys/windowKeys'
+} from '~/store/keys/window-keys'
 
 export const state = () => ({
   [StoreKeys.WindowWidth]: null,

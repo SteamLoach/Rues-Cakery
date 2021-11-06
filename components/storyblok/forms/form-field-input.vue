@@ -12,7 +12,6 @@
       :class="{'has-field-errors': content.fieldErrors.length}"
       :name="content.id"
       :type="content.type"
-      :maxlength="maxLength"
       :value="value"
       @input="onInput">
   </forms-form-field>

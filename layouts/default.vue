@@ -29,12 +29,12 @@ import {ModuleNames} from '@/constants/store'
 import {
   GetterNames as WindowGetterNames,
   MutationNames as WindowMutationNames
-} from '@/store/keys/windowKeys'
+} from '~/store/keys/window-keys'
 import {
   GetterNames as NavigationGetterNames,
-} from '~/store/keys/navigationKeys'
+} from '~/store/keys/navigation-keys'
 
-import {mixinWindowResizeListener} from '@/mixins/mixinWindowResizeListener'
+import {mixinWindowResizeListener} from '~/mixins/mixin-window-resize-listener'
 
 export default {
 
@@ -43,6 +43,7 @@ export default {
   data() {
     return {
       logRef: '<layout-default>',
+      siteSettings: undefined,
       pageLinks: [
         {
           name: 'Cakes',

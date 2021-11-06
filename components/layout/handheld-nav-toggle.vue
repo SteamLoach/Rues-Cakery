@@ -14,7 +14,7 @@
 
 import {mapMutations, mapGetters} from 'vuex'
 import {ModuleNames} from '@/constants/store'
-import {MutationNames, GetterNames} from '@/store/keys/navigationKeys'
+import {MutationNames, GetterNames} from '~/store/keys/navigation-keys'
 
 export default {
   

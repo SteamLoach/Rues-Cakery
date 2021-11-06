@@ -44,10 +44,10 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    '~/plugins/globalComponents.js',
+    '~/plugins/global-components.js',
     '~/plugins/toolkit.js',
     '~/plugins/logger.js',
-    {src: '~/plugins/vDatePicker.js', mode: 'client'}
+    {src: '~/plugins/v-date-picker.js', mode: 'client'}
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
