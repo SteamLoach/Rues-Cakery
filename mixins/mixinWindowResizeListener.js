@@ -26,9 +26,9 @@ export const mixinWindowResizeListener = {
     log.task('set event listener');
     window.addEventListener(
       'resize',
-      this.mixinWindowResizeListener_setDimensions,
+      this.$_mixinWindowResizeListener_setDimensions,
     );
-    this.mixinWindowResizeListener_setDimensions();
+    this.$_mixinWindowResizeListener_setDimensions();
     log.groupEnd();
   },
 
@@ -37,7 +37,7 @@ export const mixinWindowResizeListener = {
     log.task('remove event listener')
     window.removeEventListener(
       'resize',
-      this.mixinWindowResizeListener_setDimensions
+      this.$_mixinWindowResizeListener_setDimensions
     )
     log.groupEnd();
   },
@@ -49,7 +49,7 @@ export const mixinWindowResizeListener = {
       log.line(`resize: ${window.innerWidth} x ${window.innerHeight}`);
       log.groupEnd()
     },
-    mixinWindowResizeListener_setDimensions: debounce(function() {
+    $_mixinWindowResizeListener_setDimensions: debounce(function() {
       this.mixinWindowResizeListener_onResize();
     }, 500) 
   }

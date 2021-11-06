@@ -6,7 +6,7 @@
     <layout-primary-nav 
       :page-links="pageLinks" 
       :social-links="socialLinks"
-      :handheld-nav-is-active="handHeldNavIsActive"
+      :handheld-nav-is-active="handheldNavIsActive"
       :is-handheld-window-width="isHandheldWindowWidth">
     </layout-primary-nav>
     
@@ -25,7 +25,14 @@
 <script>
 
 import {mapMutations, mapGetters} from 'vuex'
-import {GetterNames, MutationNames} from '@/store/keys'
+import {ModuleNames} from '@/constants/store'
+import {
+  GetterNames as WindowGetterNames,
+  MutationNames as WindowMutationNames
+} from '@/store/keys/windowKeys'
+import {
+  GetterNames as NavigationGetterNames,
+} from '~/store/keys/navigationKeys'
 
 import {mixinWindowResizeListener} from '@/mixins/mixinWindowResizeListener'
 
@@ -61,20 +68,22 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      isHandheldWindowWidth: GetterNames.IsHandheldWindowWidth,
-      handHeldNavIsActive: GetterNames.HandheldNavIsActive
+    ...mapGetters(ModuleNames.Window, {
+      isHandheldWindowWidth: WindowGetterNames.IsHandheldWindowWidth,
+    }),
+    ...mapGetters(ModuleNames.Navigation, {
+      handheldNavIsActive: NavigationGetterNames.HandheldNavIsActive
     })
   },
 
   methods: {
     mixinWindowResizeListener_onResize() {
-      this[MutationNames.UpdateWindowWidth](window.innerWidth);
-      this[MutationNames.UpdateWindowHeight](window.innerHeight);
+      this[WindowMutationNames.UpdateWindowWidth](window.innerWidth);
+      this[WindowMutationNames.UpdateWindowHeight](window.innerHeight);
     },
-    ...mapMutations([
-      MutationNames.UpdateWindowWidth,
-      MutationNames.UpdateWindowHeight,
+    ...mapMutations(ModuleNames.Window, [
+      WindowMutationNames.UpdateWindowWidth,
+      WindowMutationNames.UpdateWindowHeight,
     ])
   }
 

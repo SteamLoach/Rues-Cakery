@@ -35,16 +35,14 @@
             v-for="field in customizationOptionFields"
             :key="field.key"
             v-model="$v.mixinFormHandler_form[field.name].$model"
-            :content="field"
-            :field-errors="mixinFormHandler_formFieldErrors[field.name]">
+            :content="field">
           </component>
           <component
             :is="field.component"
             v-for="field in textOptionFields"
             :key="field.key"
             v-model="$v.mixinFormHandler_form[field.name].$model"
-            :content="field"
-            :field-errors="mixinFormHandler_formFieldErrors[field.name]">
+            :content="field">
           </component>
           <component
             :is="field.component"
@@ -53,8 +51,7 @@
             v-model="$v.mixinFormHandler_form[field.name].$model"
             :content="field"
             :min-date="earliestAvailableDate"
-            :disabled-dates="[]"
-            :field-errors="mixinFormHandler_formFieldErrors[field.name]">
+            :disabled-dates="blackoutDates">
           </component>
         </div>
       </section>
@@ -100,8 +97,7 @@
           v-for="field in orderNoteFields"
           :key="field.key"
           v-model="$v.mixinFormHandler_form[field.name].$model"
-          :content="field"
-          :field-errors="mixinFormHandler_formFieldErrors[field.name]">
+          :content="field">
         </component>
       </section>
       <section class="contact-details">
@@ -110,13 +106,12 @@
           v-for="field in contactDetailFields"
           :key="field.key"
           v-model="$v.mixinFormHandler_form[field.name].$model"
-          :content="field"
-          :field-errors="mixinFormHandler_formFieldErrors[field.name]">
+          :content="field">
         </component>
         <div 
           v-if="mixinFormHandler_formConsent"
           class="form-consent">
-          <utils-form-field>
+          <forms-form-field>
             <p id="form-consent-description">
               {{product_details.form_consent.description}}
             </p>
@@ -128,7 +123,7 @@
             <label for="form-consent">
               {{product_details.form_consent.checkbox_label}}
             </label>
-          </utils-form-field>
+          </forms-form-field>
         </div>
       </section>
       <section class="form-controls">
@@ -139,18 +134,22 @@
           @onClick="mixinFormHandler_postForm">
             {{product_details.form_submit.button_text}}
         </storyblok-utils-ui-button>
-        <utils-form-post-state
+        <forms-form-post-state
           :content="product_details.form_submit"
           :is-posting="mixinFormHandler_isPosting"
           :has-attempted-post="mixinFormHandler_hasAttemptedPost"
           :has-successful-post="mixinFormHandler_hasSuccessfulPost">
-        </utils-form-post-state>
+        </forms-form-post-state>
       </section>
     </form>    
   </section>
 </template>
 
 <script>
+
+import {mapGetters} from 'vuex'
+import {ModuleNames} from '@/constants/store'
+import {GetterNames as SettingsGetterNames} from '@/store/keys/settingsKeys'
 
 import {mixinFormHandler} from '@/mixins/mixinFormHandler'
 import {CAKE_OPTIONS} from '@/placeholder-data/cake-options'
@@ -277,7 +276,7 @@ export default {
    mixinFormHandler_formName() {
      return `${this.product_details.product_type} Enquiry Form`
    },
-   mixinFormHandler_formFields() {
+   mixinFormHandler_formSchema() {
      return [
        ...this.product_details.customization_options,
        ...this.product_details.text_option,
@@ -292,19 +291,19 @@ export default {
 
    /** Mapped augmented fields **/
    customizationOptionFields() {
-     return this.mixinFormHandler_findAugmentedFields(this.product_details.customization_options);
+     return this.mixinFormHandler_findFormFields(this.product_details.customization_options);
    },
    textOptionFields() {
-     return this.mixinFormHandler_findAugmentedFields(this.product_details.text_option);
+     return this.mixinFormHandler_findFormFields(this.product_details.text_option);
    },
    dateOptionFields() {
-     return this.mixinFormHandler_findAugmentedFields(this.product_details.date_option);
+     return this.mixinFormHandler_findFormFields(this.product_details.date_option);
    },
    orderNoteFields() {
-     return this.mixinFormHandler_findAugmentedFields(this.product_details.order_notes);
+     return this.mixinFormHandler_findFormFields(this.product_details.order_notes);
    },
    contactDetailFields() {
-     return this.mixinFormHandler_findAugmentedFields(this.product_details.contact_details);
+     return this.mixinFormHandler_findFormFields(this.product_details.contact_details);
    },
 
   /** Pricing **/
@@ -354,7 +353,7 @@ export default {
    },
    earliestAvailableDate() {
      const date = new Date();
-     return date.setDate(date.getDate() + 7);
+     return date.setDate(date.getDate() + this.leadTimeInDays);
    },
 
    /** Serialised Form Data **/
@@ -384,7 +383,12 @@ export default {
      const serializedFormData = formData.join('&');
      const serializedForm = `${serializedFormName}&${serializedFormData}`
      return serializedForm.replace(/%20/g, '+');
-   }
+   },
+
+   ...mapGetters(ModuleNames.Settings, {
+     leadTimeInDays: SettingsGetterNames.LeadtimeInDays,
+     blackoutDates: SettingsGetterNames.BlackoutDates
+   })
  },
 
 

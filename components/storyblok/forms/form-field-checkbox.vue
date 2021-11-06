@@ -1,5 +1,5 @@
 <template>
-  <utils-form-field :content="content">
+  <forms-form-field :content="content">
     <input
       :id="content.id"
       :name="content.id"
@@ -7,7 +7,7 @@
       :value="value"
       @input="onInput">
     <label :for="content.id"> {{content.label}} </label>
-  </utils-form-field>
+  </forms-form-field>
 </template>
 
 <script>

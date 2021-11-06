@@ -5,10 +5,9 @@ export default {
 
   // Env
   publicRuntimeConfig: {
-    STORYBLOK_TOKEN: process.env.STORYBLOK_TOKEN, 
-    STORYBLOK_CONTENT_VERSION: process.env.STORYBLOK_PUBLISHED_CONTENT ? 'published' : 'draft'
+    STORYBLOK_CONTENT_VERSION: process.env.STORYBLOK_DRAFT_CONTENT ?
+      'draft' : 'published'
   },
-
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -21,7 +20,7 @@ export default {
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { hid: 'description', name: 'description', content: '' },
       { name: 'format-detection', content: 'telephone=no' },
-      process.env.STORYBLOK_PUBLISHED_CONTENT ? {} : {name: 'robots', content: 'noindex,nofollow'},
+      process.env.STORYBLOK_DRAFT_CONTENT ? {} : {name: 'robots', content: 'noindex,nofollow'},
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },

@@ -23,7 +23,7 @@ export const logger = ({
   color = '#000',
 }) => {
 
-  const showLogs = process.env.ENABLE_LOGGER && !mute;
+  const showLogs = process.env.NUXT_ENV_ENABLE_LOGGER && !mute;
 
   const logger = {
 

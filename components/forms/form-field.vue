@@ -10,7 +10,6 @@
         {{currentError}}
       </p>      
     </slide-x-left-transition>
-
   </div>
 </template>
 
@@ -23,15 +22,11 @@ export default {
       type: Object,
       default: () => ({}),
     },
-    fieldErrors: {
-      type: Array,
-      default: () => []
-    }
   },
 
   computed: {
     currentError() {
-      return this.fieldErrors[0]
+      return this.content.fieldErrors ? this.content.fieldErrors[0] : ''
     }
   }
 

@@ -1,7 +1,6 @@
 <template>
-    <utils-form-field 
-      :content="content"
-      :field-errors="fieldErrors">
+    <forms-form-field 
+      :content="content">
     <label :for="content.id">
       <span>
         {{content.label}}
@@ -15,7 +14,7 @@
     </label>
     <textarea
       :id="content.id"
-      :class="{'has-field-errors': fieldErrors.length}"
+      :class="{'has-field-errors': content.fieldErrors.length}"
       :name="content.id"
       :value="value"
       :rows="content.rows"
@@ -24,7 +23,7 @@
       :disabled="disabled"
       @input="onInput">
     </textarea>
-  </utils-form-field>
+  </forms-form-field>
 </template>
 
 <script>
@@ -38,10 +37,6 @@ export default {
     content: {
       type: Object,
       required: true
-    },
-    fieldErrors: {
-      type: Array,
-      default: () => [],
     },
     disabled: {
       type: Boolean,
