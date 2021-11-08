@@ -35,26 +35,26 @@
             v-for="field in customizationOptionFields"
             :key="field.key"
             v-model="$v.mixinFormHandler_form[field.name].$model"
-            :content="field"
-            v-editable="field">
+            v-editable="field"
+            :content="field">
           </component>
           <component
             :is="field.component"
             v-for="field in textOptionFields"
             :key="field.key"
             v-model="$v.mixinFormHandler_form[field.name].$model"
-            :content="field"
-            v-editable="field">
+            v-editable="field"
+            :content="field">
           </component>
           <component
             :is="field.component"
             v-for="field in dateOptionFields"
             :key="field.key"
             v-model="$v.mixinFormHandler_form[field.name].$model"
+            v-editable="field"
             :content="field"
             :min-date="earliestAvailableDate"
-            :disabled-dates="blackoutDates"
-            v-editable="field">
+            :disabled-dates="blackoutDates">
           </component>
         </div>
       </section>
@@ -64,7 +64,7 @@
           <ul>
             <li>
               <b>Base Price:</b>
-              <span>${{content.base_price}}</span>
+              <span>${{productHeader.base_price}}</span>
             </li>
             <template v-for="item in priceMap">
               <slide-x-right-transition 
@@ -84,7 +84,7 @@
         </div>
         <div class="estimate">
           <rich-text 
-            :content="content.price_disclaimer"
+            :content="enquiryForm.price_disclaimer"
             class="disclaimer">
           </rich-text>
           <p class="total">
@@ -101,8 +101,8 @@
           v-for="field in orderNoteFields"
           :key="field.key"
           v-model="$v.mixinFormHandler_form[field.name].$model"
-          :content="field"
-          v-editable="field">
+          v-editable="field"
+          :content="field">
         </component>
       </section>
       <section class="contact-details">
@@ -111,18 +111,18 @@
           v-for="field in contactDetailFields"
           :key="field.key"
           v-model="$v.mixinFormHandler_form[field.name].$model"
+          v-editable="field"
           class="is-half-width"
-          :content="field"
-          v-editable="field">
+          :content="field">
         </component>
         <div 
           v-if="mixinFormHandler_formConsent"
           class="form-consent">
           <forms-form-field 
-            v-for="field in content.form_consent"
+            v-for="field in enquiryForm.form_consent"
             :key="field._uid"
-            :show-feedback="false"
-            v-editable="field">
+            v-editable="field"
+            :show-feedback="false">
             <rich-text 
               id="form-consent-description"
               class="small-copy-size"
@@ -140,10 +140,10 @@
         </div>
       </section>
       <section 
-        v-for="item in content.form_submit"
+        v-for="item in enquiryForm.form_submit"
         :key="item._uid"
-        class="form-controls"
-        v-editable="item">
+        v-editable="item"
+        class="form-controls">
         <storyblok-utils-ui-button
           class="is-wide has-hover-state"
           :disabled="!mixinFormHandler_canSubmit"
@@ -191,38 +191,47 @@ export default {
 
  computed: {
 
+   /** Derive major bloks from content prop */
+   enquiryForm() {
+     return this.content.enquiry_form[0]
+   },
+
+   productHeader() {
+     return this.content.product_header[0]
+   },
+
    /** mixinFormHandler config **/
    mixinFormHandler_formName() {
-     return `${this.content.product_type} Enquiry Form`
+     return `${this.productHeader.product_title} Enquiry Form`
    },
    mixinFormHandler_formSchema() {
      return [
-       ...this.content.customization_options,
-       ...this.content.add_writing_option,
-       ...this.content.date_option,
-       ...this.content.order_notes,
-       ...this.content.contact_details,
+       ...this.enquiryForm.customization_options,
+       ...this.enquiryForm.add_writing_option,
+       ...this.enquiryForm.date_option,
+       ...this.enquiryForm.order_notes,
+       ...this.enquiryForm.contact_details,
      ]
    },
    mixinFormHandler_formConsent() {
-     return this.content.form_consent.length
+     return this.enquiryForm.form_consent.length
    },
 
    /** Mapped augmented fields **/
    customizationOptionFields() {
-     return this.mixinFormHandler_findFormFields(this.content.customization_options);
+     return this.mixinFormHandler_findFormFields(this.enquiryForm.customization_options);
    },
    textOptionFields() {
-     return this.mixinFormHandler_findFormFields(this.content.add_writing_option);
+     return this.mixinFormHandler_findFormFields(this.enquiryForm.add_writing_option);
    },
    dateOptionFields() {
-     return this.mixinFormHandler_findFormFields(this.content.date_option);
+     return this.mixinFormHandler_findFormFields(this.enquiryForm.date_option);
    },
    orderNoteFields() {
-     return this.mixinFormHandler_findFormFields(this.content.order_notes);
+     return this.mixinFormHandler_findFormFields(this.enquiryForm.order_notes);
    },
    contactDetailFields() {
-     return this.mixinFormHandler_findFormFields(this.content.contact_details);
+     return this.mixinFormHandler_findFormFields(this.enquiryForm.contact_details);
    },
 
   /** Pricing **/
@@ -231,9 +240,10 @@ export default {
     this.customizationOptionFields.forEach(field => {
       const formValue = this.mixinFormHandler_form[field.name];      
       if(!formValue) {return;}
-      const priceModifier = field.options.find(
+      const chosenOption = field.options.find(
         option => option.label === formValue
-      ).value; 
+      ) 
+      const priceModifier = chosenOption.value || 0
       priceMap.push({
         label: field.label,
         value: formValue,
@@ -271,7 +281,7 @@ export default {
     this.priceMap.forEach(item => {
       modifiers += parseFloat(item.priceModifier)
     });
-    const total = parseFloat(this.content.base_price) + modifiers
+    const total = parseFloat(this.productHeader.base_price) + modifiers
     return total.toFixed(2);
    },
    earliestAvailableDate() {
@@ -453,6 +463,7 @@ export default {
 
     .form-consent {
       padding: $space-3;
+      margin-bottom: $space-2;
       font-size: $text-small;
       border: 1px dashed $brand-dark;
       background: $brand-lightest;

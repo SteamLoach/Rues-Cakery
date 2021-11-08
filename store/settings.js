@@ -13,11 +13,9 @@ export const state = () => ({
 export const mutations = {
   [MutationNames.UpdateSettings](state, payload) {
     const {content} = payload.story
-    const availability = content.availability[0]
-    const serviceDisclaimer = content.service_disclaimer
-    state[StoreKeys.LeadtimeInDays] = availability.leadtime_in_days
-    state[StoreKeys.BlackoutDates] = availability.blackout_dates
-    state[StoreKeys.ServiceDisclaimer] = serviceDisclaimer
+    state[StoreKeys.LeadtimeInDays] = content.leadtime_in_days
+    state[StoreKeys.BlackoutDates] = content.blackout_dates
+    state[StoreKeys.ServiceDisclaimer] = content.service_disclaimer[0]
   }
 }
 

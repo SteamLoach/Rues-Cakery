@@ -156,8 +156,8 @@ export const mixinFormHandler = {
       const validFields = this.mixinFormHandler_formSchema.filter(field => field.label);
       return validFields.map((field, index) => {  
         // cased field references
-        const camelCaseLabel = this.$toolkit.camelCase(field.label);
-        const kebabCaseLabel = this.$toolkit.kebabCase(field.label);
+        const camelCaseLabel = this.$toolkit.camelCase(field.label)
+        const kebabCaseLabel = this.$toolkit.kebabCase(field.label)
         // default value
         let defaultVal = field.default_value || ''
         if(field.options && field.options.length) {
@@ -171,8 +171,8 @@ export const mixinFormHandler = {
               const squashedOptionLabel = option.label
                 .replace(/\s+/g, '')
                 .toLowerCase()
-              return new RegExp(squashedDefaultVal, 'i')
-                .test(squashedOptionLabel)
+              return new RegExp(squashedOptionLabel, 'i')
+                .test(squashedDefaultVal)
             })
             if(defaultOption) {
               defaultVal = defaultOption.label

@@ -1,22 +1,23 @@
 <template>
   <header class="product-header">
     <img 
-      :src="content.product_images[0].filename"
+      :src="featureImage"
       class="feature-image">
     <div class="copy">
-      <h1>{{content.product_title}}</h1>
+      <h1>{{productHeader.product_title}}</h1>
       <rich-text
         class="product-description"
-        :content="content.product_description">
+        :content="productHeader.product_description">
       </rich-text>
       <rich-text
+        v-editable="serviceDisclaimer"
         class="service-disclaimer"
-        :content="serviceDisclaimer">
+        :content="serviceDisclaimer.content">
       </rich-text>
       <div class="base-price">
         <sup class="from">from</sup>
         <sup class="currency">$</sup>
-        <span class="price">{{basePrice}}</span>
+        <span class="price">{{productHeader.base_price}}</span>
       </div>
       <div class="customise-link">
         <storyblok-utils-ui-button
@@ -44,10 +45,6 @@ export default {
       type: Object,
       default: () => {}
     },
-    basePrice: {
-      type: [String, Number],
-      required: true,
-    }
   },
 
   data() {
@@ -55,6 +52,15 @@ export default {
   },
 
   computed: {
+    productHeader() {
+      return this.content.product_header[0]
+    },
+    featureImage() {
+      if(this.productHeader.product_images[0]) {
+        return this.productHeader.product_images[0].filename
+      }
+      return ''
+    },
     ...mapGetters(ModuleNames.Settings, {
       serviceDisclaimer: SettingsGetterNames.ServiceDisclaimer
     })
