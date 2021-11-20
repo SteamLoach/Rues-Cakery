@@ -45,7 +45,7 @@ export default {
   },
   computed: { 
     maxLength() {
-      const maxLengthRule = this.content.validations.find(item =>  item.validation === 'maxLength')
+      const maxLengthRule = this.content.validations.find(item =>  [...item.validation].includes('maxLength'))
       return maxLengthRule ? maxLengthRule.params : false
     },
     exceedsMaxLength() {

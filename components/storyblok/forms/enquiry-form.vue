@@ -243,7 +243,7 @@ export default {
       const chosenOption = field.options.find(
         option => option.label === formValue
       ) 
-      const priceModifier = chosenOption.value || 0
+      const priceModifier = chosenOption.price_modifier || 0
       priceMap.push({
         label: field.label,
         value: formValue,
