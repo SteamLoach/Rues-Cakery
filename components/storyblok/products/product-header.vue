@@ -11,7 +11,7 @@
       </rich-text>
       <rich-text
         v-editable="serviceDisclaimer"
-        class="service-disclaimer"
+        class="service-disclaimer small-copy-size"
         :content="serviceDisclaimer.content">
       </rich-text>
       <div class="base-price">

@@ -7,9 +7,9 @@
       <section class="content-panel">
         <div class="product-preview-cards">
           <products-product-preview-card
-            v-for="product in products"
+            v-for="product in stories"
             :key="product._uid"
-            :content="product">
+            :product="product">
           </products-product-preview-card>
         </div>
       </section>
@@ -23,20 +23,19 @@ import {mixinStoryblokBridge} from '@/mixins/mixin-storyblok-bridge'
 
 export default {
   mixins: [mixinStoryblokBridge],
-  computed: {
-    products() {
-      return this.stories.map(story => story.content);
-    }
-  }
 }
 
 </script>
 
 <style lang="scss" scoped>
 
+  h1 {
+    margin-bottom: $space-6;
+  }
+
   .product-preview-cards {
     @include row(center, center);
-    max-width: $wide-width;
+    max-width: $extra-wide-width;
   }
 
 </style>

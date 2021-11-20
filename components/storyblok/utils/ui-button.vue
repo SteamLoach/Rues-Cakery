@@ -3,6 +3,7 @@
     :is="tag"
     class="ui-button"
     :href="href"
+    :to="href"
     :disabled="disabled"
     @click.prevent="onClick">
     <slot />
@@ -16,7 +17,7 @@ export default {
       type: String,
       default: 'button',
       validator(val) {
-        return ['button', 'a'].includes(val)
+        return ['button', 'a', 'nuxt-link'].includes(val)
       }
     },
     href: {

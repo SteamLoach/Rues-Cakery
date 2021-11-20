@@ -285,8 +285,7 @@ export default {
     return total.toFixed(2);
    },
    earliestAvailableDate() {
-     const date = new Date();
-     return date.setDate(date.getDate() + this.leadTimeInDays);
+     return this.$dayjs().add(this.leadTimeInDays, 'day').format("YYYY-MM-DD")
    },
 
    /** Serialised Form Data **/

@@ -1,36 +1,49 @@
 <template>
-  <div class="column">
-    <div class="preview-card">
-      <img :src="featureImage">
-      <h2> {{previewDetails.product_title}} </h2>
-      <rich-text
-        class="description small-copy-size"
-        :content="previewDetails.product_description">
-      </rich-text>
-      <p class="base-price">
-        <sup class="from">from </sup>
-        <sup class="currency">$ </sup>
-        <span class="price">
-          {{previewDetails.base_price}} 
-        </span>
-      </p>
+  <div class="preview-card">
+    <img 
+      :src="featureImage"
+      class="feature-image"
+    >
+    <h2> {{previewDetails.product_title}} </h2>
+    <rich-text
+      class="description small-copy-size"
+      :content="previewDetails.product_description">
+    </rich-text>
+    <hr>
+    <p class="base-price">
+      <sup class="from">from </sup>
+      <sup class="currency">$ </sup>
+      <span class="price">
+        {{previewDetails.base_price}} 
+      </span>
+    </p>
+    <div class="product-page-link">
+      <ui-button 
+        tag="nuxt-link"
+        class="is-full-width has-hover-state"
+        :href="product.full_slug">
+        Customise
+      </ui-button>
     </div>
   </div>
 </template>
 
 <script>
 
+import uiButton from '../storyblok/utils/ui-button.vue'
+
 export default {
+  components: { uiButton },
 
   props: {
-    content: {
+    product: {
       type: Object,
       required: true,
     }
   },
   computed: {
     previewDetails() {
-      return this.content.product_header[0]
+      return this.product.content.product_header[0]
     },
     featureImage() {
       if(this.previewDetails.product_images[0]) {
@@ -45,45 +58,46 @@ export default {
 
 <style lang="scss" scoped>
 
-  .column {
-    @include column-scale(
-      $default: 24,
-      $on-lrg-mobile: 20,
-      $on-phablet: 18,
-      $on-tablet: 8,
-    );
-    @include pad-scale(
+  .preview-card {
+    width: 325px;
+    @include margin-scale(
       x,
       $default: $space-2,
-      $on-tablet: $space-6
+      $on-tablet: $space-4,
+      $on-laptop: $space-5
     );
-  }
-
-  .preview-card {
+    margin-bottom: $space-6;
     @include shadow($elevation-lighter);
   }
 
-  img,
   h2,
-  .description {
-    margin-bottom: $space-2;
+  .feature-image {
+    margin-bottom: $space-3;
   }
 
-  img {
+  .feature-image {
+    height: 225px;
+    width: 100%;
     object-fit: cover;
-    max-height: 175px;
   }
 
   h2,
   .description,
   .base-price {
-    @include x-pad($space-2);
+    @include x-pad($space-4);
+  }
+
+  .description {
+    margin-bottom: $space-4;
+  }
+
+  hr {
+    @include x-margin($space-6);
+    margin-bottom: $space-3;
   }
 
   .base-price {
-    padding: $space-2;
     text-align: right;
-    border-top: 1px solid $shade-base;
     .from {
       position: relative;
       top: -5px;
@@ -99,6 +113,10 @@ export default {
     .price {
       font-size: $text-largest;
     }
+  }
+
+  .product-page-link {
+    padding: $space-4;
   }
 
 </style>
