@@ -1,8 +1,8 @@
 import {
-  StoreKeys,
-  MutationNames,
-  GetterNames
-} from '~/store/keys/navigation-keys'
+  NavigationStoreKeys as StoreKeys,
+  NavigationMutationNames as MutationNames,
+  NavigationGetterNames as GetterNames
+} from '~/constants/store'
 
 export const state = () => ({
   [StoreKeys.HandheldNavIsActive]: false,

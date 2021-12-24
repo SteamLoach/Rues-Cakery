@@ -165,8 +165,10 @@
 <script>
 
 import {mapGetters} from 'vuex'
-import {ModuleNames} from '@/constants/store'
-import {GetterNames as SettingsGetterNames} from '~/store/keys/settings-keys'
+import {
+  ModuleNames,
+  SettingsGetterNames
+} from '@/constants/store'
 
 import {mixinFormHandler} from '~/mixins/mixin-form-handler'
 

@@ -1,10 +1,10 @@
-import { HANDHELD_WINDOW_WIDTH_BELOW } from '~/constants/dimensions';
+import { Breakpoints } from '~/constants/breakpoints';
 
 import {
-  StoreKeys,
-  MutationNames,
-  GetterNames 
-} from '~/store/keys/window-keys'
+  WindowStoreKeys as StoreKeys,
+  WindowMutationNames as MutationNames,
+  WindowGetterNames as GetterNames
+} from '~/constants/store'
 
 export const state = () => ({
   [StoreKeys.WindowWidth]: null,
@@ -21,7 +21,16 @@ export const mutations = {
 }
 
 export const getters = {
-  [GetterNames.IsHandheldWindowWidth](state) {
-    return state[StoreKeys.WindowWidth] < HANDHELD_WINDOW_WIDTH_BELOW
-  },
+  [GetterNames.Breakpoints](state) {
+    const breakpoints = {}
+    Object.keys(Breakpoints).forEach(key => {
+      breakpoints[`from${key}`] = (
+        Breakpoints[key] <= state[StoreKeys.WindowWidth]
+      )
+      breakpoints[`below${key}`] = (
+        Breakpoints[key] > state[StoreKeys.WindowWidth]
+      )
+    })
+    return breakpoints
+  }
 }

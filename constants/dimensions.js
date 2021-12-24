@@ -1,1 +1,0 @@
-export const HANDHELD_WINDOW_WIDTH_BELOW = 768;

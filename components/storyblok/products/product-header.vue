@@ -11,7 +11,7 @@
       </rich-text>
       <rich-text
         v-editable="serviceDisclaimer"
-        class="service-disclaimer small-copy-size"
+        class="service-disclaimer"
         :content="serviceDisclaimer.content">
       </rich-text>
       <div class="base-price">
@@ -35,8 +35,11 @@
 <script>
 
 import {mapGetters} from 'vuex'
-import {ModuleNames} from '@/constants/store'
-import {GetterNames as SettingsGetterNames} from '@/store/keys/settings-keys'
+import {
+  ModuleNames,
+  SettingsGetterNames,
+  WindowGetterNames,
+} from '@/constants/store'
 
 export default {
 
@@ -63,6 +66,9 @@ export default {
     },
     ...mapGetters(ModuleNames.Settings, {
       serviceDisclaimer: SettingsGetterNames.ServiceDisclaimer
+    }),
+    ...mapGetters(ModuleNames.Window, {
+      breakpoints: WindowGetterNames.Breakpoints
     })
   },
 
@@ -70,7 +76,7 @@ export default {
     scrollToOptions() {
       this.$toolkit.scrollPage({
         target: '#price-calculator',
-        offset: '#primary-nav',
+        offset: this.breakpoints.belowTablet ? '#handheld-nav' : null,
         smooth: true,
       })
     }
@@ -112,7 +118,6 @@ export default {
       $on-laptop: $space-8, 
     );
   }
-
   h1 {
     margin-bottom: $space-4;
     @include font-size-scale(

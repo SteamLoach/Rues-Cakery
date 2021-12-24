@@ -1,6 +1,8 @@
 import {logger} from '@/utils/logger'
-import { ModuleNames } from "@/constants/store"
-import { MutationNames as SettingsMutationNames } from "@/store/keys/settings-keys"
+import { 
+  ModuleNames,
+  SettingsMutationNames
+} from "@/constants/store"
 
 export const state = () => ({
 

@@ -1,7 +1,7 @@
 <template>
   <div 
-    class="rich-text"
     v-interpolation
+    class="rich-text"
     v-html="resolvedText">
   </div>
 </template>
@@ -62,7 +62,8 @@ export default {
   .rich-text {
     max-width: $medium-width;
     @include font-size-scale(
-      $default: $text-body,
+      $default: $text-small,
+      $on-tablet: $text-body
     );
 
     .brand {
@@ -153,8 +154,8 @@ export default {
 
     &.small-copy-size {
       @include font-size-scale(
-        $default: $text-body,
-        $on-tablet: $text-root,
+        $default: $text-smaller,
+        $on-tablet: $text-small
       );
       h3 {
         font-size: $title-smaller;

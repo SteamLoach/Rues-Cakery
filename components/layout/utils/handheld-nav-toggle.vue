@@ -13,20 +13,23 @@
 <script>
 
 import {mapMutations, mapGetters} from 'vuex'
-import {ModuleNames} from '@/constants/store'
-import {MutationNames, GetterNames} from '~/store/keys/navigation-keys'
+import {
+  ModuleNames,
+  NavigationGetterNames,
+  NavigationMutationNames
+} from '@/constants/store'
 
 export default {
   
   computed: {
     ...mapGetters(ModuleNames.Navigation, {
-      isActive: GetterNames.HandheldNavIsActive
+      isActive: NavigationGetterNames.HandheldNavIsActive
     })
   },
 
   methods: {
     ...mapMutations(ModuleNames.Navigation, {
-      toggle: MutationNames.ToggleHandheldNavIsActive
+      toggle: NavigationMutationNames.ToggleHandheldNavIsActive
     })
   }
 

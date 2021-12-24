@@ -1,8 +1,8 @@
 import {
-  StoreKeys,
-  MutationNames,
-  GetterNames
-} from '~/store/keys/settings-keys'
+  SettingsStoreKeys as StoreKeys,
+  SettingsMutationNames as MutationNames,
+  SettingsGetterNames as GetterNames
+} from '~/constants/store'
 
 export const state = () => ({
   [StoreKeys.LeadtimeInDays]: 7,

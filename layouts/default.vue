@@ -3,20 +3,16 @@
   <div id="top" class="site-wrapper">
     
     <!-- navigation -->
-    <layout-primary-nav 
-      :page-links="pageLinks" 
+    <layout-top-nav 
+      :page-links="pageLinks"
       :social-links="socialLinks"
-      :handheld-nav-is-active="handheldNavIsActive"
-      :is-handheld-window-width="isHandheldWindowWidth">
-    </layout-primary-nav>
+    />
     
     <!-- body -->
     <Nuxt />
 
     <!-- footer -->
-    <layout-site-footer 
-      :social-links="socialLinks">
-    </layout-site-footer>
+    <layout-site-footer :social-links="socialLinks" />
 
   </div>
   
@@ -25,14 +21,12 @@
 <script>
 
 import {mapMutations, mapGetters} from 'vuex'
-import {ModuleNames} from '@/constants/store'
 import {
-  GetterNames as WindowGetterNames,
-  MutationNames as WindowMutationNames
-} from '~/store/keys/window-keys'
-import {
-  GetterNames as NavigationGetterNames,
-} from '~/store/keys/navigation-keys'
+  ModuleNames,
+  NavigationGetterNames,
+  WindowGetterNames,
+  WindowMutationNames
+} from '~/constants/store'
 
 import {mixinWindowResizeListener} from '~/mixins/mixin-window-resize-listener'
 
@@ -43,7 +37,7 @@ export default {
   data() {
     return {
       logRef: '<layout-default>',
-      siteSettings: undefined,
+      siteSettings: null,
       pageLinks: [
         {
           name: 'Cakes',
@@ -70,7 +64,7 @@ export default {
 
   computed: {
     ...mapGetters(ModuleNames.Window, {
-      isHandheldWindowWidth: WindowGetterNames.IsHandheldWindowWidth,
+      breakpoints: WindowGetterNames.Breakpoints
     }),
     ...mapGetters(ModuleNames.Navigation, {
       handheldNavIsActive: NavigationGetterNames.HandheldNavIsActive
@@ -131,6 +125,7 @@ export default {
   .page-wrapper {
     @include row(center, center, $direction: column);
     flex: 1;
+    @include single-pad-until($tablet, top, 75px);
   }
 
   main {
