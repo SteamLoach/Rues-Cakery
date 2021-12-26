@@ -1,15 +1,12 @@
 <template>
   <nav class="top-nav">
-    <layout-components-desktop-nav 
-      v-if="breakpoints.fromTablet"
-      :page-links="pageLinks"
-      :social-links="socialLinks"
-    />
-    <layout-components-handheld-nav 
-      v-else
-      :page-links="pageLinks"
-      :social-links="socialLinks"     
-    />
+    <client-only>
+      <component
+        :is="navComponent"
+        :page-links="pageLinks"
+        :social-links="socialLinks"     
+      /> 
+    </client-only>
   </nav>
 </template>
 
@@ -23,6 +20,11 @@ import {
   ModuleNames,
   WindowGetterNames
 } from '@/constants/store'
+
+const NavComponents = {
+  DesktopNav: 'layout-components-desktop-nav',
+  HandheldNav: 'layout-components-handheld-nav'
+}
 
 export default {
 
@@ -38,6 +40,11 @@ export default {
   },
 
   computed: {
+    navComponent() {
+      return this.breakpoints.fromTablet ?
+      NavComponents.DesktopNav
+      : NavComponents.HandheldNav
+    },
     ...mapGetters(ModuleNames.Window, {
       breakpoints: WindowGetterNames.Breakpoints
     })

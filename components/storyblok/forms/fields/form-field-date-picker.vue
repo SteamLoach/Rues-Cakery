@@ -2,7 +2,10 @@
   <!-- client only as v-date-picker references document -->
   <client-only>
     <forms-form-field :content="content">
-      <label :for="content.id">
+      <label 
+        class="form-field__label"
+        :for="content.id"
+      >
         {{content.label}}
         <sup class="required">
           {{content.isRequired ? '*required' : ''}}
@@ -102,18 +105,6 @@ export default {
 
 <style lang="scss" scoped>
   
-  label {
-    width: 100%;
-    font-weight: $input-label-weight;
-    color: $input-label-color;
-    sup {
-      position: relative;
-      top: 2px;
-      font-size: 10px;
-      font-style: italic;
-    }
-  }
-
   .form-field-date-picker::v-deep {
     .vc-container {
       font-family: $title-font;

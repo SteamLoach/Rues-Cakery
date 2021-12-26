@@ -1,7 +1,10 @@
 <template>
   <forms-form-field 
     :content="content">
-    <label :for="content.id">
+    <label 
+      class="form-field__label"
+      :for="content.id"
+    >
       {{content.label}}
       <sup class="required">
         {{content.isRequired ? '*required' : ''}}
@@ -9,6 +12,7 @@
     </label>
     <input
       :id="content.id"
+      class="form-field__input"
       :class="{'has-field-errors': content.fieldErrors.length}"
       :name="content.id"
       :type="content.type"
@@ -44,29 +48,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
-  label,
-  input {
-    width: 100%;
-  }
-
-  label {
-    font-weight: $input-label-weight;
-    color: $input-label-color;
-    sup {
-      position: relative;
-      top: 2px;
-      font-size: 10px;
-      font-style: italic;
-    }
-  }
-
-  input {
-    padding: $space-1 $space-2;
-    border: $input-border;
-    &.has-field-errors {
-      border: $input-with-error-border;
-    }    
-  }
 
 </style>

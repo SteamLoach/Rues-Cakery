@@ -1,13 +1,19 @@
 <template>
   <forms-form-field 
     :content="content">
-    <input
-      :id="content.id"
-      :name="content.id"
-      type="checkbox"
-      :value="value"
-      @input="onInput">
-    <label :for="content.id"> {{content.label}} </label>
+    <div class="wrapper">
+      <input
+        :id="content.id"
+        :name="content.id"
+        type="checkbox"
+        :value="value"
+        @input="onInput">
+      <label 
+        class="label"
+        :for="content.id"> 
+        {{content.label}} 
+      </label>
+    </div>
   </forms-form-field>
 </template>
 
@@ -32,5 +38,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+  .wrapper {
+    @include row(start, center);
+  }
+  .label {
+    @include font-size-scale(
+      $default: $text-small,
+      $on-tablet: $text-root,
+    )
+  }
 </style>

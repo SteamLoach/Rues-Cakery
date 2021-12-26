@@ -1,7 +1,9 @@
 <template>
     <forms-form-field 
       :content="content">
-    <label :for="content.id">
+    <label 
+      class="form-field__label"
+      :for="content.id">
       <span>
         {{content.label}}
       </span>
@@ -14,6 +16,7 @@
     </label>
     <textarea
       :id="content.id"
+      class="form-field__textarea"
       :class="{'has-field-errors': content.fieldErrors.length}"
       :name="content.id"
       :value="value"
@@ -68,32 +71,13 @@ export default {
 
 <style lang="scss" scoped>
 
-  label, textarea {
-    display: block;
-    width: 100%;
-  }
-
   label {
     @include row(between, center, $space-2, $no-wrap: true);
-    font-weight: $input-label-weight;
-    color: $input-label-color;
     .character-allowance {
       font-size: $text-small;
       &.exceeds-max-length {
         color: $danger-dark;
       }
-    }
-  }
-
-  textarea {
-    max-width: 100%;
-    padding: $space-1 $space-2;
-    border: $input-border;
-    &:placeholder-shown {
-      font-style: italic;
-    }
-    &.has-field-errors {
-      border: $input-with-error-border;
     }
   }
 

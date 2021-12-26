@@ -43,12 +43,13 @@ export const SettingsGetterNames = {
 
 export const WindowStoreKeys = {
   WindowWidth: "WINDOW_WIDTH",
-  WindowHeight: "WINDOW_HEIGHT",  
+  WindowHeight: "WINDOW_HEIGHT"
 }
 
 export const WindowMutationNames = {
+  UpdateWindowDimensions: "UPDATE_WINDOW_DIMENSIONS",
   UpdateWindowWidth: "UPDATE_WINDOW_WIDTH",
-  UpdateWindowHeight: "UPDATE_WINDOW_HEIGHT",
+  UpdateWindowHeight: "UPDATE_WINDOW_HEIGHT"
 }
 
 export const WindowGetterNames = {

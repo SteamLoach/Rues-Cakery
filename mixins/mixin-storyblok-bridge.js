@@ -36,9 +36,8 @@ export const mixinStoryblokBridge = {
         `cdn/stories${slug}`,
          reqConfig,
       );
+      log.task('set page data');
       const story = pageRes.data.story;
-      log.complete('set page data');
-
 
       const isIndex = story.name.toLowerCase() === 'index' && !isHome;
       const stories = [];
@@ -53,7 +52,7 @@ export const mixinStoryblokBridge = {
         if(indexRes.data.stories) {
           indexRes.data.stories.forEach(item => {
             if(item.name.toLowerCase() !== 'index') {
-              log.complete(`add [${item.name}] to index`)
+              log.task(`add [${item.name}] to index`)
               stories.push(item);
             }
           })
@@ -65,6 +64,7 @@ export const mixinStoryblokBridge = {
 
       const dataObj = isIndex ? {story, stories} : {story};
 
+      log.complete('storyblok request complete')
       log.groupEnd()
 
       return dataObj;

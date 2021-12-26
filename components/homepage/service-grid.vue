@@ -1,22 +1,24 @@
 <template>
-  <section class="service-grid content-panel">
-    <div v-for="orientation in assetOrientations"
-         :key="`${orientation}-orientation`"
-         :class="`${orientation}-assets`">
-         <div 
-          v-for="(asset, index) in content[`${orientation}_assets`]"
-          :key="`${orientation}-asset-${index}`"
-          :class="`${orientation}-asset`"
-          :style="$toolkit.setBackgroundImage(asset.src)">
-            <nuxt-link 
-              :to="asset.link_href"
-              class="service-link">
-              <span>{{asset.link_text}}</span>
-              <utils-svg-loader :content="{icon_name: 'RightChevron'}" />
-            </nuxt-link>
-         </div>
+  <layout-wrappers-content-panel class="extra-wide-content">
+    <div class="service-grid">
+      <div v-for="orientation in assetOrientations"
+          :key="`${orientation}-orientation`"
+          :class="`${orientation}-assets`">
+          <div 
+            v-for="(asset, index) in content[`${orientation}_assets`]"
+            :key="`${orientation}-asset-${index}`"
+            :class="`${orientation}-asset`"
+            :style="$toolkit.setBackgroundImage(asset.src)">
+              <nuxt-link 
+                :to="asset.link_href"
+                class="service-link">
+                <span>{{asset.link_text}}</span>
+                <utils-svg-loader :content="{icon_name: 'RightChevron'}" />
+              </nuxt-link>
+          </div>
+      </div>
     </div>  
-  </section>  
+  </layout-wrappers-content-panel>  
 </template>
 
 <script>
@@ -41,7 +43,7 @@ export default {
 <style lang="scss" scoped>
 
   .service-grid {
-    @include row(center, center, $space-4);
+    @include row(center, center);
     @include height-scale(
       $default: 650px,
       $on-tablet: 750px,
@@ -50,12 +52,19 @@ export default {
   }
 
   .landscape-assets {
-    @include container(center, center, $space-4);
+    @include container(center, center);
     @include height-scale(
       $default: calc((100% / 3) * 2),
       $on-tablet: 100%,
     );
     @include media-from($tablet, flex, 2);
+    @include media-from($tablet, margin-right, $space-4);
+  }
+
+  @media screen and (min-width: $tablet) {
+    .landscape-asset:first-child {
+      margin-bottom: $space-4;
+    }
   }
 
   .portrait-assets {

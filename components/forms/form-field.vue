@@ -38,18 +38,25 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 
   .form-field {
     width: 100%;
     margin-bottom: $space-1;
-    @include x-pad($space-2);
     
     &.is-half-width {
       @include column-scale(
         $default: 24,
         $on-tablet: 12,
       );
+      @media screen and (min-width: $tablet) {
+        &:nth-child(odd) {
+          padding-right: $space-2;
+        }
+        &:nth-child(even) {
+          padding-left: $space-2;
+        }
+      }
     }
 
     .feedback {
@@ -59,6 +66,34 @@ export default {
       font-weight: 600;
       color: $danger-dark;
     }
+
+    &__label {
+      width: 100%;
+      font-weight: 600;
+      color: $title-color;
+      sup {
+        position: relative;
+        top: 2px;
+        font-size: 10px;
+        font-style: italic;
+      }
+    }
+
+    &__input,
+    &__select,
+    &__textarea {
+      width: 100%;
+      max-width: 100%;
+      padding: $space-1 $space-2;
+      border: $input-border;
+      &.has-field-errors {
+        border: $input-with-error-border;
+      }
+      &:placeholder-shown {
+        font-style: italic;
+      }
+    }
+
 
   }
 </style>

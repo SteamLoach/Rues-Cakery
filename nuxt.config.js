@@ -45,6 +45,7 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
     '~/plugins/global-components.js',
+    {src: '~/plugins/window-resize-listener.js', mode: 'client'},
     '~/plugins/toolkit.js',
     '~/plugins/logger.js',
     {src: '~/plugins/v-date-picker.js', mode: 'client'}

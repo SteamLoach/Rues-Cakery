@@ -12,6 +12,11 @@ const colorMap = [
     match: 'STORYBLOK',
     color: '#fff',
     backgroundColor: '#089B97'
+  },
+  {
+    match: 'PLUGIN',
+    color: '#fff',
+    backgroundColor: '#18aa01'
   }
 ]
 

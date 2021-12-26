@@ -20,19 +20,14 @@
 
 <script>
 
-import {mapMutations, mapGetters} from 'vuex'
+import {mapGetters} from 'vuex'
 import {
   ModuleNames,
   NavigationGetterNames,
-  WindowGetterNames,
-  WindowMutationNames
+  WindowGetterNames
 } from '~/constants/store'
 
-import {mixinWindowResizeListener} from '~/mixins/mixin-window-resize-listener'
-
 export default {
-
-  mixins: [mixinWindowResizeListener],
 
   data() {
     return {
@@ -70,17 +65,6 @@ export default {
       handheldNavIsActive: NavigationGetterNames.HandheldNavIsActive
     })
   },
-
-  methods: {
-    mixinWindowResizeListener_onResize() {
-      this[WindowMutationNames.UpdateWindowWidth](window.innerWidth);
-      this[WindowMutationNames.UpdateWindowHeight](window.innerHeight);
-    },
-    ...mapMutations(ModuleNames.Window, [
-      WindowMutationNames.UpdateWindowWidth,
-      WindowMutationNames.UpdateWindowHeight,
-    ])
-  }
 
 }
 
@@ -130,21 +114,6 @@ export default {
 
   main {
     @include row(center, center);
-  }
-
-  .content-panel {
-    @include row(center, center);
-    @include pad-scale(
-      x,
-      $default: $space-2,
-      $on-tablet: $space-4,
-      $on-laptop: $space-6, 
-    );
-    @include margin-scale(
-      bottom,
-      $default: $space-8,
-      $on-laptop: $space-10,
-    );
   }
 
 </style>

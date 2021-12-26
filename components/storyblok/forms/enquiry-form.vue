@@ -1,5 +1,8 @@
 <template>
-  <section id="price-calculator" class="price-calculator content-panel">
+    <layout-wrappers-content-panel
+      id="price-calculator"
+      class="wide-content y-pad-medium background-brand-lightest"
+    >
     <!-- Same Page Target -->
     <iframe 
       id="hidden-iframe"
@@ -8,7 +11,7 @@
     </iframe>
     <!-- End Same Page Target -->
     <form 
-      class="inner"
+      class="price-calculator"
       data-netlify="true"
       :name="mixinFormHandler_formName"
       :aria-label="mixinFormHandler_formName"
@@ -128,14 +131,16 @@
               class="small-copy-size"
               :content="field.description">
             </rich-text>
-            <input
-              id="form-consent"
-              v-model="$v.mixinFormHandler_form.formConsent.$model"
-              type="checkbox"
-              aria-describedby="form-consent-description">
-            <label for="form-consent">
-              {{field.checkbox_label}}
-            </label>
+              <div class="form-consent__checkbox-wrapper">
+              <input
+                id="form-consent"
+                v-model="$v.mixinFormHandler_form.formConsent.$model"
+                type="checkbox"
+                aria-describedby="form-consent-description">
+              <label for="form-consent">
+                {{field.checkbox_label}}
+              </label>
+            </div>
           </forms-form-field>
         </div>
       </section>
@@ -159,7 +164,7 @@
         </forms-form-post-state>
       </section>
     </form>    
-  </section>
+  </layout-wrappers-content-panel>
 </template>
 
 <script>
@@ -333,22 +338,19 @@ export default {
 <style lang="scss" scoped>
 
   .price-calculator {
-    padding: $space-8 $space-4;
-    background: $brand-lightest;
 
-    .inner {
-      @include row(center, stretch);
-      max-width: $wide-width;
-      @include y-pad($space-6);
-      @include pad-scale(
-        x,
-        $default: $space-2,
-        $on-phablet: $space-5,
-      );
-      border: 1px solid $title-color;
-      background: $page-background;
-      @include shadow($elevation-light);
-    }
+    @include row(center, stretch);
+    @include y-pad($space-6);
+    @include pad-scale(
+      x,
+      $default: $space-4,
+      $on-phablet: $space-5,
+      $on-tablet: $space-6,
+      $on-desktop: $space-7
+    );
+    border: 1px solid $title-color;
+    background: $page-background;
+    @include shadow($elevation-light);
 
     h2 {
       margin-bottom: $space-3;
@@ -362,32 +364,20 @@ export default {
       );
     }
 
-    .pricing,
-    .options h2 {
-      @include pad-scale(
-        x,
-        $default: $space-2,
-        $on-tablet: $space-4,
-        $on-laptop: $space-5
-      );
+    .pricing {
+      @include media-from($tablet, padding-left, $space-5);
     }
 
 
 
     .options {
+      @include media-from($tablet, padding-right, $space-5);
       @media screen and (max-width: ($tablet - 1px)) {
         padding-bottom: $space-4;
         margin-bottom: $space-6;
         border-bottom: 1px solid $title-color;
       }
-      .form-fields {
-        @include pad-scale(
-          x,
-          $default: $space-1,
-          $on-tablet: $space-2,
-          $on-laptop: $space-4
-        );
-      }
+
     }
 
     .pricing {
@@ -440,16 +430,6 @@ export default {
       }
     }
 
-    .order-notes,
-    .contact-details {
-      @include margin-scale(
-        x,
-        $default: $space-2,
-        $on-tablet: $space-4,
-        $on-laptop: $space-5
-      );
-    }
-
     .order-notes {
       width: 100%;
       padding-top: $space-6;
@@ -465,9 +445,20 @@ export default {
     .form-consent {
       padding: $space-3;
       margin-bottom: $space-2;
-      font-size: $text-small;
+      @include font-size-scale(
+        $default: $text-smaller,
+        $on-tablet: $text-small,
+      );
       border: 1px dashed $brand-dark;
       background: $brand-lightest;
+
+      &__checkbox-wrapper {
+        @include row(start, start, $no-wrap: true);
+        input {
+          margin-top: $space-1;
+          margin-right: $space-2;
+        }
+      }
 
       p {
         margin-bottom: $space-2;

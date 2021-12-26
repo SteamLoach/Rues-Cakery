@@ -1,5 +1,7 @@
 <template>
-  <section class="content-panel order-process">
+  <layout-wrappers-content-panel 
+    class="extra-wide-content y-pad-medium background-brand-lightest"
+  >
     <div class="inner">
       <ul class="steps">
         <h2>{{content.title}}</h2>
@@ -15,7 +17,7 @@
         <utils-svg-loader :content="{icon_name: 'UndrawWorkFromAnywhere'}" />
       </div>
     </div>
-  </section>
+  </layout-wrappers-content-panel>
 </template>
 
 <script>
@@ -40,10 +42,6 @@ export default {
 
   .inner {
     @include row(center, center);
-    padding: $space-6;
-    max-width: $extra-wide-width;
-    border-radius: $space-4;
-    //@include shadow($elevation-light);
   }
 
   h2 {

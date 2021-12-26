@@ -12,6 +12,10 @@ export const state = () => ({
 })
 
 export const mutations = {
+  [MutationNames.UpdateWindowDimensions](state, payload) {
+    state[StoreKeys.WindowWidth] = payload.width
+    state[StoreKeys.WindowHeight] = payload.height
+  },
   [MutationNames.UpdateWindowWidth](state, payload) {
     state[StoreKeys.WindowWidth] = payload;
   },
